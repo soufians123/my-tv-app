@@ -1,0 +1,222 @@
+[
+  {
+    "name": "2M",
+    "url": "https://viamotionhsi.netplus.ch/live/eds/2mmaroc/browser-HLS8/2mmaroc.m3u8",
+    "category": "عامة",
+    "logo": "https://i.imgur.com/PJYTfHi.png",
+    "country": "المغرب",
+    "language": "العربية",
+    "quality": "HD",
+    "description": "قناة مغربية عامة",
+    "status": "active"
+  },
+  {
+    "name": "2M Monde",
+    "url": "https://cdn-globecast.akamaized.net/live/eds/2m_monde/hls_video_ts_tuhawxpiemz257adfc/2m_monde.m3u8",
+    "category": "عامة",
+    "logo": "https://i.imgur.com/MvpntzA.png",
+    "country": "المغرب",
+    "language": "العربية",
+    "quality": "HD",
+    "description": "قناة 2M العالمية",
+    "status": "active"
+  },
+  {
+    "name": "2M Monde +1",
+    "url": "https://d2qh3gh0k5vp3v.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-n6pess5lwbghr/2M_ES.m3u8",
+    "category": "عامة",
+    "logo": "https://i.imgur.com/MvpntzA.png",
+    "country": "المغرب",
+    "language": "العربية",
+    "quality": "FHD",
+    "description": "قناة 2M العالمية +1",
+    "status": "active"
+  },
+  {
+    "name": "Abadan",
+    "url": "https://lenz.splus.ir/PLTV/88888888/224/3221227000/index.m3u8",
+    "category": "عامة",
+    "logo": "https://upload.wikimedia.org/wikipedia/fa/3/39/Abadan_tv.png",
+    "country": "إيران",
+    "language": "الفارسية",
+    "quality": "HD",
+    "description": "قناة آبادان الإيرانية",
+    "status": "active"
+  },
+  {
+    "name": "Abdulmajeed Abdullah",
+    "url": "https://d2hng5r56zpsbw.cloudfront.net/out/v1/9c4c990f44bb4767bb46271f326dd574/index.m3u8",
+    "category": "موسيقية",
+    "logo": "https://assets.mbcmood.com/channels/1720184087Abdullah%20Majeed%20Abdullah%20banner.png",
+    "country": "السعودية",
+    "language": "العربية",
+    "quality": "FHD",
+    "description": "قناة عبدالمجيد عبدالله الموسيقية",
+    "status": "active"
+  },
+  {
+    "name": "ABNsat",
+    "url": "https://mediaserver.abnvideos.com/streams/abnsat.m3u8",
+    "category": "دينية",
+    "logo": "https://i.imgur.com/WhPlJzh.jpeg",
+    "country": "العراق",
+    "language": "العربية",
+    "quality": "HD",
+    "description": "قناة ABN الفضائية الدينية",
+    "status": "active"
+  },
+  {
+    "name": "Abu Dhabi Aloula",
+    "url": "https://vo-live-media.cdb.cdn.orange.com/Content/Channel/AbuDhabiChannel/HLS/index.m3u8",
+    "category": "عامة",
+    "logo": "https://i.imgur.com/g7IRorO.jpeg",
+    "country": "الإمارات",
+    "language": "العربية",
+    "quality": "FHD",
+    "description": "قناة أبوظبي الأولى",
+    "status": "active"
+  },
+  {
+    "name": "Abu Dhabi Emirates",
+    "url": "https://vo-live-media.cdb.cdn.orange.com/Content/Channel/EmiratesChannel/HLS/index.m3u8",
+    "category": "عامة",
+    "logo": "https://i.imgur.com/OT6DW3E.png",
+    "country": "الإمارات",
+    "language": "العربية",
+    "quality": "FHD",
+    "description": "قناة أبوظبي الإمارات",
+    "status": "active"
+  },
+  {
+    "name": "Abu Dhabi Sports 1",
+    "url": "https://vo-live-media.cdb.cdn.orange.com/Content/Channel/AbuDhabiSportsChannel1/HLS/index.m3u8",
+    "category": "رياضية",
+    "logo": "https://i.imgur.com/6BVWk8z.png",
+    "country": "الإمارات",
+    "language": "العربية",
+    "quality": "FHD",
+    "description": "قناة أبوظبي الرياضية الأولى",
+    "status": "active"
+  },
+  {
+    "name": "Abu Dhabi Sports 2",
+    "url": "https://vo-live-media.cdb.cdn.orange.com/Content/Channel/AbuDhabiSportsChannel2/HLS/index.m3u8",
+    "category": "رياضية",
+    "logo": "https://i.postimg.cc/1tsRwv8J/abudhabisports2.png",
+    "country": "الإمارات",
+    "language": "العربية",
+    "quality": "FHD",
+    "description": "قناة أبوظبي الرياضية الثانية",
+    "status": "active"
+  },
+  {
+    "name": "Abu Dhabi TV",
+    "url": "http://dvrfl05.bozztv.com/gin-abudhabitv/index.m3u8",
+    "category": "عامة",
+    "logo": "https://i.imgur.com/7cNke07.png",
+    "country": "الإمارات",
+    "language": "العربية",
+    "quality": "HD",
+    "description": "تلفزيون أبوظبي",
+    "status": "active"
+  },
+  {
+    "name": "Afaq TV",
+    "url": "http://63b03f7689049.streamlock.net:1935/live/1/playlist.m3u8",
+    "category": "عامة",
+    "logo": "https://i.imgur.com/t7CaTu3.png",
+    "country": "العراق",
+    "language": "العربية",
+    "quality": "HD",
+    "description": "قناة آفاق العراقية",
+    "status": "active"
+  },
+  {
+    "name": "Afghanistan International",
+    "url": "https://hls.afintl.com/hls/stream.m3u8",
+    "category": "إخبارية",
+    "logo": "https://i.imgur.com/r8MmFRX.png",
+    "country": "أفغانستان",
+    "language": "الفارسية",
+    "quality": "HD",
+    "description": "قناة أفغانستان الدولية الإخبارية",
+    "status": "active"
+  },
+  {
+    "name": "Aflam",
+    "url": "https://shls-live-enc.edgenextcdn.net/out/v1/0044dd4b001a466c941ad77b04a574a2/index.m3u8",
+    "category": "أفلام",
+    "logo": "https://i.imgur.com/cTLj7Yt.png",
+    "country": "السعودية",
+    "language": "العربية",
+    "quality": "FHD",
+    "description": "قناة أفلام السعودية",
+    "status": "active"
+  },
+  {
+    "name": "Aflam TV",
+    "url": "https://fl1002.bozztv.com/ga-aflamtv7/index.m3u8",
+    "category": "أفلام",
+    "logo": "https://i.imgur.com/XqQxO9J.png",
+    "country": "المغرب",
+    "language": "العربية",
+    "quality": "HD",
+    "description": "قناة أفلام تي في المغربية",
+    "status": "active"
+  },
+  {
+    "name": "Aghani Aghani TV",
+    "url": "https://streaming-a-1035.cdn.nextologies.com/6zj8y5nemi8a32vyjjbkv0oqx/77pcakd8reik3g8qdqnexlkmq/playlist.m3u8",
+    "category": "موسيقية",
+    "logo": "https://i.imgur.com/o6HSfNg.png",
+    "country": "لبنان",
+    "language": "العربية",
+    "quality": "FHD",
+    "description": "قناة أغاني أغاني الموسيقية",
+    "status": "active"
+  },
+  {
+    "name": "Aghapy Kids",
+    "url": "https://5b622f07944df.streamlock.net/aghapykids.tv/aghapykids2/playlist.m3u8",
+    "category": "أطفال",
+    "logo": "https://i.imgur.com/8ar3tD.png",
+    "country": "مصر",
+    "language": "العربية",
+    "quality": "FHD",
+    "description": "قناة أغابي للأطفال",
+    "status": "active"
+  },
+  {
+    "name": "Aghapy TV",
+    "url": "https://5b622f07944df.streamlock.net/aghapy.tv/aghapy.smil/playlist.m3u8",
+    "category": "دينية",
+    "logo": "https://i.postimg.cc/xdCV2Bbr/aghapytv.png",
+    "country": "مصر",
+    "language": "العربية",
+    "quality": "FHD",
+    "description": "قناة أغابي الدينية",
+    "status": "active"
+  },
+  {
+    "name": "Ajman TV",
+    "url": "https://cdn1.logichost.in/ajmantv/live/playlist.m3u8",
+    "category": "عامة",
+    "logo": "https://i.imgur.com/hVNIwgE.png",
+    "country": "الإمارات",
+    "language": "العربية",
+    "quality": "FHD",
+    "description": "تلفزيون عجمان",
+    "status": "active"
+  },
+  {
+    "name": "Ajyal TV",
+    "url": "http://htvmada.mada.ps:8888/ajyal/index.m3u8",
+    "category": "عامة",
+    "logo": "https://i.imgur.com/i6Y7beR.jpg",
+    "country": "فلسطين",
+    "language": "العربية",
+    "quality": "HD",
+    "description": "قناة أجيال الفلسطينية",
+    "status": "active"
+  }
+]

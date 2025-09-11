@@ -1,0 +1,1002 @@
+[
+  {
+    "name": "قناة الأخبار العربية 1",
+    "url": "https://example.com/stream1.m3u8",
+    "category": "أخبار",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "مصر",
+    "logo": "https://example.com/logo1.png",
+    "description": "قناة إخبارية عربية متميزة"
+  },
+  {
+    "name": "قناة الرياضة العربية 1",
+    "url": "https://example.com/stream2.m3u8",
+    "category": "رياضة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "السعودية",
+    "logo": "https://example.com/logo2.png",
+    "description": "قناة رياضية عربية شاملة"
+  },
+  {
+    "name": "قناة الأفلام العربية 1",
+    "url": "https://example.com/stream3.m3u8",
+    "category": "أفلام",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الإمارات",
+    "logo": "https://example.com/logo3.png",
+    "description": "قناة أفلام عربية وعالمية"
+  },
+  {
+    "name": "قناة الموسيقى العربية 1",
+    "url": "https://example.com/stream4.m3u8",
+    "category": "موسيقى",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "لبنان",
+    "logo": "https://example.com/logo4.png",
+    "description": "قناة موسيقية عربية متنوعة"
+  },
+  {
+    "name": "قناة الأطفال العربية 1",
+    "url": "https://example.com/stream5.m3u8",
+    "category": "أطفال",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الأردن",
+    "logo": "https://example.com/logo5.png",
+    "description": "قناة تعليمية وترفيهية للأطفال"
+  },
+  {
+    "name": "قناة الوثائقيات العربية 1",
+    "url": "https://example.com/stream6.m3u8",
+    "category": "وثائقي",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "المغرب",
+    "logo": "https://example.com/logo6.png",
+    "description": "قناة وثائقية تعليمية"
+  },
+  {
+    "name": "قناة الطبخ العربية 1",
+    "url": "https://example.com/stream7.m3u8",
+    "category": "طبخ",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "تونس",
+    "logo": "https://example.com/logo7.png",
+    "description": "قناة متخصصة في الطبخ العربي"
+  },
+  {
+    "name": "قناة التكنولوجيا العربية 1",
+    "url": "https://example.com/stream8.m3u8",
+    "category": "تكنولوجيا",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الكويت",
+    "logo": "https://example.com/logo8.png",
+    "description": "قناة تقنية ومعلوماتية"
+  },
+  {
+    "name": "قناة السفر والسياحة 1",
+    "url": "https://example.com/stream9.m3u8",
+    "category": "سفر",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "قطر",
+    "logo": "https://example.com/logo9.png",
+    "description": "قناة السفر والاستكشاف"
+  },
+  {
+    "name": "قناة الصحة والجمال 1",
+    "url": "https://example.com/stream10.m3u8",
+    "category": "صحة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "البحرين",
+    "logo": "https://example.com/logo10.png",
+    "description": "قناة الصحة والعناية"
+  },
+  {
+    "name": "قناة الأخبار العربية 2",
+    "url": "https://example.com/stream11.m3u8",
+    "category": "أخبار",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "مصر",
+    "logo": "https://example.com/logo11.png",
+    "description": "قناة إخبارية عربية متميزة"
+  },
+  {
+    "name": "قناة الرياضة العربية 2",
+    "url": "https://example.com/stream12.m3u8",
+    "category": "رياضة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "السعودية",
+    "logo": "https://example.com/logo12.png",
+    "description": "قناة رياضية عربية شاملة"
+  },
+  {
+    "name": "قناة الأفلام العربية 2",
+    "url": "https://example.com/stream13.m3u8",
+    "category": "أفلام",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الإمارات",
+    "logo": "https://example.com/logo13.png",
+    "description": "قناة أفلام عربية وعالمية"
+  },
+  {
+    "name": "قناة الموسيقى العربية 2",
+    "url": "https://example.com/stream14.m3u8",
+    "category": "موسيقى",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "لبنان",
+    "logo": "https://example.com/logo14.png",
+    "description": "قناة موسيقية عربية متنوعة"
+  },
+  {
+    "name": "قناة الأطفال العربية 2",
+    "url": "https://example.com/stream15.m3u8",
+    "category": "أطفال",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الأردن",
+    "logo": "https://example.com/logo15.png",
+    "description": "قناة تعليمية وترفيهية للأطفال"
+  },
+  {
+    "name": "قناة الوثائقيات العربية 2",
+    "url": "https://example.com/stream16.m3u8",
+    "category": "وثائقي",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "المغرب",
+    "logo": "https://example.com/logo16.png",
+    "description": "قناة وثائقية تعليمية"
+  },
+  {
+    "name": "قناة الطبخ العربية 2",
+    "url": "https://example.com/stream17.m3u8",
+    "category": "طبخ",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "تونس",
+    "logo": "https://example.com/logo17.png",
+    "description": "قناة متخصصة في الطبخ العربي"
+  },
+  {
+    "name": "قناة التكنولوجيا العربية 2",
+    "url": "https://example.com/stream18.m3u8",
+    "category": "تكنولوجيا",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الكويت",
+    "logo": "https://example.com/logo18.png",
+    "description": "قناة تقنية ومعلوماتية"
+  },
+  {
+    "name": "قناة السفر والسياحة 2",
+    "url": "https://example.com/stream19.m3u8",
+    "category": "سفر",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "قطر",
+    "logo": "https://example.com/logo19.png",
+    "description": "قناة السفر والاستكشاف"
+  },
+  {
+    "name": "قناة الصحة والجمال 2",
+    "url": "https://example.com/stream20.m3u8",
+    "category": "صحة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "البحرين",
+    "logo": "https://example.com/logo20.png",
+    "description": "قناة الصحة والعناية"
+  },
+  {
+    "name": "قناة الأخبار العربية 3",
+    "url": "https://example.com/stream21.m3u8",
+    "category": "أخبار",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "مصر",
+    "logo": "https://example.com/logo21.png",
+    "description": "قناة إخبارية عربية متميزة"
+  },
+  {
+    "name": "قناة الرياضة العربية 3",
+    "url": "https://example.com/stream22.m3u8",
+    "category": "رياضة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "السعودية",
+    "logo": "https://example.com/logo22.png",
+    "description": "قناة رياضية عربية شاملة"
+  },
+  {
+    "name": "قناة الأفلام العربية 3",
+    "url": "https://example.com/stream23.m3u8",
+    "category": "أفلام",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الإمارات",
+    "logo": "https://example.com/logo23.png",
+    "description": "قناة أفلام عربية وعالمية"
+  },
+  {
+    "name": "قناة الموسيقى العربية 3",
+    "url": "https://example.com/stream24.m3u8",
+    "category": "موسيقى",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "لبنان",
+    "logo": "https://example.com/logo24.png",
+    "description": "قناة موسيقية عربية متنوعة"
+  },
+  {
+    "name": "قناة الأطفال العربية 3",
+    "url": "https://example.com/stream25.m3u8",
+    "category": "أطفال",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الأردن",
+    "logo": "https://example.com/logo25.png",
+    "description": "قناة تعليمية وترفيهية للأطفال"
+  },
+  {
+    "name": "قناة الوثائقيات العربية 3",
+    "url": "https://example.com/stream26.m3u8",
+    "category": "وثائقي",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "المغرب",
+    "logo": "https://example.com/logo26.png",
+    "description": "قناة وثائقية تعليمية"
+  },
+  {
+    "name": "قناة الطبخ العربية 3",
+    "url": "https://example.com/stream27.m3u8",
+    "category": "طبخ",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "تونس",
+    "logo": "https://example.com/logo27.png",
+    "description": "قناة متخصصة في الطبخ العربي"
+  },
+  {
+    "name": "قناة التكنولوجيا العربية 3",
+    "url": "https://example.com/stream28.m3u8",
+    "category": "تكنولوجيا",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الكويت",
+    "logo": "https://example.com/logo28.png",
+    "description": "قناة تقنية ومعلوماتية"
+  },
+  {
+    "name": "قناة السفر والسياحة 3",
+    "url": "https://example.com/stream29.m3u8",
+    "category": "سفر",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "قطر",
+    "logo": "https://example.com/logo29.png",
+    "description": "قناة السفر والاستكشاف"
+  },
+  {
+    "name": "قناة الصحة والجمال 3",
+    "url": "https://example.com/stream30.m3u8",
+    "category": "صحة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "البحرين",
+    "logo": "https://example.com/logo30.png",
+    "description": "قناة الصحة والعناية"
+  },
+  {
+    "name": "قناة الأخبار العربية 4",
+    "url": "https://example.com/stream31.m3u8",
+    "category": "أخبار",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "مصر",
+    "logo": "https://example.com/logo31.png",
+    "description": "قناة إخبارية عربية متميزة"
+  },
+  {
+    "name": "قناة الرياضة العربية 4",
+    "url": "https://example.com/stream32.m3u8",
+    "category": "رياضة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "السعودية",
+    "logo": "https://example.com/logo32.png",
+    "description": "قناة رياضية عربية شاملة"
+  },
+  {
+    "name": "قناة الأفلام العربية 4",
+    "url": "https://example.com/stream33.m3u8",
+    "category": "أفلام",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الإمارات",
+    "logo": "https://example.com/logo33.png",
+    "description": "قناة أفلام عربية وعالمية"
+  },
+  {
+    "name": "قناة الموسيقى العربية 4",
+    "url": "https://example.com/stream34.m3u8",
+    "category": "موسيقى",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "لبنان",
+    "logo": "https://example.com/logo34.png",
+    "description": "قناة موسيقية عربية متنوعة"
+  },
+  {
+    "name": "قناة الأطفال العربية 4",
+    "url": "https://example.com/stream35.m3u8",
+    "category": "أطفال",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الأردن",
+    "logo": "https://example.com/logo35.png",
+    "description": "قناة تعليمية وترفيهية للأطفال"
+  },
+  {
+    "name": "قناة الوثائقيات العربية 4",
+    "url": "https://example.com/stream36.m3u8",
+    "category": "وثائقي",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "المغرب",
+    "logo": "https://example.com/logo36.png",
+    "description": "قناة وثائقية تعليمية"
+  },
+  {
+    "name": "قناة الطبخ العربية 4",
+    "url": "https://example.com/stream37.m3u8",
+    "category": "طبخ",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "تونس",
+    "logo": "https://example.com/logo37.png",
+    "description": "قناة متخصصة في الطبخ العربي"
+  },
+  {
+    "name": "قناة التكنولوجيا العربية 4",
+    "url": "https://example.com/stream38.m3u8",
+    "category": "تكنولوجيا",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الكويت",
+    "logo": "https://example.com/logo38.png",
+    "description": "قناة تقنية ومعلوماتية"
+  },
+  {
+    "name": "قناة السفر والسياحة 4",
+    "url": "https://example.com/stream39.m3u8",
+    "category": "سفر",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "قطر",
+    "logo": "https://example.com/logo39.png",
+    "description": "قناة السفر والاستكشاف"
+  },
+  {
+    "name": "قناة الصحة والجمال 4",
+    "url": "https://example.com/stream40.m3u8",
+    "category": "صحة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "البحرين",
+    "logo": "https://example.com/logo40.png",
+    "description": "قناة الصحة والعناية"
+  },
+  {
+    "name": "قناة الأخبار العربية 5",
+    "url": "https://example.com/stream41.m3u8",
+    "category": "أخبار",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "مصر",
+    "logo": "https://example.com/logo41.png",
+    "description": "قناة إخبارية عربية متميزة"
+  },
+  {
+    "name": "قناة الرياضة العربية 5",
+    "url": "https://example.com/stream42.m3u8",
+    "category": "رياضة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "السعودية",
+    "logo": "https://example.com/logo42.png",
+    "description": "قناة رياضية عربية شاملة"
+  },
+  {
+    "name": "قناة الأفلام العربية 5",
+    "url": "https://example.com/stream43.m3u8",
+    "category": "أفلام",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الإمارات",
+    "logo": "https://example.com/logo43.png",
+    "description": "قناة أفلام عربية وعالمية"
+  },
+  {
+    "name": "قناة الموسيقى العربية 5",
+    "url": "https://example.com/stream44.m3u8",
+    "category": "موسيقى",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "لبنان",
+    "logo": "https://example.com/logo44.png",
+    "description": "قناة موسيقية عربية متنوعة"
+  },
+  {
+    "name": "قناة الأطفال العربية 5",
+    "url": "https://example.com/stream45.m3u8",
+    "category": "أطفال",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الأردن",
+    "logo": "https://example.com/logo45.png",
+    "description": "قناة تعليمية وترفيهية للأطفال"
+  },
+  {
+    "name": "قناة الوثائقيات العربية 5",
+    "url": "https://example.com/stream46.m3u8",
+    "category": "وثائقي",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "المغرب",
+    "logo": "https://example.com/logo46.png",
+    "description": "قناة وثائقية تعليمية"
+  },
+  {
+    "name": "قناة الطبخ العربية 5",
+    "url": "https://example.com/stream47.m3u8",
+    "category": "طبخ",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "تونس",
+    "logo": "https://example.com/logo47.png",
+    "description": "قناة متخصصة في الطبخ العربي"
+  },
+  {
+    "name": "قناة التكنولوجيا العربية 5",
+    "url": "https://example.com/stream48.m3u8",
+    "category": "تكنولوجيا",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الكويت",
+    "logo": "https://example.com/logo48.png",
+    "description": "قناة تقنية ومعلوماتية"
+  },
+  {
+    "name": "قناة السفر والسياحة 5",
+    "url": "https://example.com/stream49.m3u8",
+    "category": "سفر",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "قطر",
+    "logo": "https://example.com/logo49.png",
+    "description": "قناة السفر والاستكشاف"
+  },
+  {
+    "name": "قناة الصحة والجمال 5",
+    "url": "https://example.com/stream50.m3u8",
+    "category": "صحة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "البحرين",
+    "logo": "https://example.com/logo50.png",
+    "description": "قناة الصحة والعناية"
+  },
+  {
+    "name": "قناة الأخبار العربية 6",
+    "url": "https://example.com/stream51.m3u8",
+    "category": "أخبار",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "مصر",
+    "logo": "https://example.com/logo51.png",
+    "description": "قناة إخبارية عربية متميزة"
+  },
+  {
+    "name": "قناة الرياضة العربية 6",
+    "url": "https://example.com/stream52.m3u8",
+    "category": "رياضة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "السعودية",
+    "logo": "https://example.com/logo52.png",
+    "description": "قناة رياضية عربية شاملة"
+  },
+  {
+    "name": "قناة الأفلام العربية 6",
+    "url": "https://example.com/stream53.m3u8",
+    "category": "أفلام",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الإمارات",
+    "logo": "https://example.com/logo53.png",
+    "description": "قناة أفلام عربية وعالمية"
+  },
+  {
+    "name": "قناة الموسيقى العربية 6",
+    "url": "https://example.com/stream54.m3u8",
+    "category": "موسيقى",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "لبنان",
+    "logo": "https://example.com/logo54.png",
+    "description": "قناة موسيقية عربية متنوعة"
+  },
+  {
+    "name": "قناة الأطفال العربية 6",
+    "url": "https://example.com/stream55.m3u8",
+    "category": "أطفال",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الأردن",
+    "logo": "https://example.com/logo55.png",
+    "description": "قناة تعليمية وترفيهية للأطفال"
+  },
+  {
+    "name": "قناة الوثائقيات العربية 6",
+    "url": "https://example.com/stream56.m3u8",
+    "category": "وثائقي",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "المغرب",
+    "logo": "https://example.com/logo56.png",
+    "description": "قناة وثائقية تعليمية"
+  },
+  {
+    "name": "قناة الطبخ العربية 6",
+    "url": "https://example.com/stream57.m3u8",
+    "category": "طبخ",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "تونس",
+    "logo": "https://example.com/logo57.png",
+    "description": "قناة متخصصة في الطبخ العربي"
+  },
+  {
+    "name": "قناة التكنولوجيا العربية 6",
+    "url": "https://example.com/stream58.m3u8",
+    "category": "تكنولوجيا",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الكويت",
+    "logo": "https://example.com/logo58.png",
+    "description": "قناة تقنية ومعلوماتية"
+  },
+  {
+    "name": "قناة السفر والسياحة 6",
+    "url": "https://example.com/stream59.m3u8",
+    "category": "سفر",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "قطر",
+    "logo": "https://example.com/logo59.png",
+    "description": "قناة السفر والاستكشاف"
+  },
+  {
+    "name": "قناة الصحة والجمال 6",
+    "url": "https://example.com/stream60.m3u8",
+    "category": "صحة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "البحرين",
+    "logo": "https://example.com/logo60.png",
+    "description": "قناة الصحة والعناية"
+  },
+  {
+    "name": "قناة الأخبار العربية 7",
+    "url": "https://example.com/stream61.m3u8",
+    "category": "أخبار",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "مصر",
+    "logo": "https://example.com/logo61.png",
+    "description": "قناة إخبارية عربية متميزة"
+  },
+  {
+    "name": "قناة الرياضة العربية 7",
+    "url": "https://example.com/stream62.m3u8",
+    "category": "رياضة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "السعودية",
+    "logo": "https://example.com/logo62.png",
+    "description": "قناة رياضية عربية شاملة"
+  },
+  {
+    "name": "قناة الأفلام العربية 7",
+    "url": "https://example.com/stream63.m3u8",
+    "category": "أفلام",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الإمارات",
+    "logo": "https://example.com/logo63.png",
+    "description": "قناة أفلام عربية وعالمية"
+  },
+  {
+    "name": "قناة الموسيقى العربية 7",
+    "url": "https://example.com/stream64.m3u8",
+    "category": "موسيقى",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "لبنان",
+    "logo": "https://example.com/logo64.png",
+    "description": "قناة موسيقية عربية متنوعة"
+  },
+  {
+    "name": "قناة الأطفال العربية 7",
+    "url": "https://example.com/stream65.m3u8",
+    "category": "أطفال",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الأردن",
+    "logo": "https://example.com/logo65.png",
+    "description": "قناة تعليمية وترفيهية للأطفال"
+  },
+  {
+    "name": "قناة الوثائقيات العربية 7",
+    "url": "https://example.com/stream66.m3u8",
+    "category": "وثائقي",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "المغرب",
+    "logo": "https://example.com/logo66.png",
+    "description": "قناة وثائقية تعليمية"
+  },
+  {
+    "name": "قناة الطبخ العربية 7",
+    "url": "https://example.com/stream67.m3u8",
+    "category": "طبخ",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "تونس",
+    "logo": "https://example.com/logo67.png",
+    "description": "قناة متخصصة في الطبخ العربي"
+  },
+  {
+    "name": "قناة التكنولوجيا العربية 7",
+    "url": "https://example.com/stream68.m3u8",
+    "category": "تكنولوجيا",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الكويت",
+    "logo": "https://example.com/logo68.png",
+    "description": "قناة تقنية ومعلوماتية"
+  },
+  {
+    "name": "قناة السفر والسياحة 7",
+    "url": "https://example.com/stream69.m3u8",
+    "category": "سفر",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "قطر",
+    "logo": "https://example.com/logo69.png",
+    "description": "قناة السفر والاستكشاف"
+  },
+  {
+    "name": "قناة الصحة والجمال 7",
+    "url": "https://example.com/stream70.m3u8",
+    "category": "صحة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "البحرين",
+    "logo": "https://example.com/logo70.png",
+    "description": "قناة الصحة والعناية"
+  },
+  {
+    "name": "قناة الأخبار العربية 8",
+    "url": "https://example.com/stream71.m3u8",
+    "category": "أخبار",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "مصر",
+    "logo": "https://example.com/logo71.png",
+    "description": "قناة إخبارية عربية متميزة"
+  },
+  {
+    "name": "قناة الرياضة العربية 8",
+    "url": "https://example.com/stream72.m3u8",
+    "category": "رياضة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "السعودية",
+    "logo": "https://example.com/logo72.png",
+    "description": "قناة رياضية عربية شاملة"
+  },
+  {
+    "name": "قناة الأفلام العربية 8",
+    "url": "https://example.com/stream73.m3u8",
+    "category": "أفلام",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الإمارات",
+    "logo": "https://example.com/logo73.png",
+    "description": "قناة أفلام عربية وعالمية"
+  },
+  {
+    "name": "قناة الموسيقى العربية 8",
+    "url": "https://example.com/stream74.m3u8",
+    "category": "موسيقى",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "لبنان",
+    "logo": "https://example.com/logo74.png",
+    "description": "قناة موسيقية عربية متنوعة"
+  },
+  {
+    "name": "قناة الأطفال العربية 8",
+    "url": "https://example.com/stream75.m3u8",
+    "category": "أطفال",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الأردن",
+    "logo": "https://example.com/logo75.png",
+    "description": "قناة تعليمية وترفيهية للأطفال"
+  },
+  {
+    "name": "قناة الوثائقيات العربية 8",
+    "url": "https://example.com/stream76.m3u8",
+    "category": "وثائقي",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "المغرب",
+    "logo": "https://example.com/logo76.png",
+    "description": "قناة وثائقية تعليمية"
+  },
+  {
+    "name": "قناة الطبخ العربية 8",
+    "url": "https://example.com/stream77.m3u8",
+    "category": "طبخ",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "تونس",
+    "logo": "https://example.com/logo77.png",
+    "description": "قناة متخصصة في الطبخ العربي"
+  },
+  {
+    "name": "قناة التكنولوجيا العربية 8",
+    "url": "https://example.com/stream78.m3u8",
+    "category": "تكنولوجيا",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الكويت",
+    "logo": "https://example.com/logo78.png",
+    "description": "قناة تقنية ومعلوماتية"
+  },
+  {
+    "name": "قناة السفر والسياحة 8",
+    "url": "https://example.com/stream79.m3u8",
+    "category": "سفر",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "قطر",
+    "logo": "https://example.com/logo79.png",
+    "description": "قناة السفر والاستكشاف"
+  },
+  {
+    "name": "قناة الصحة والجمال 8",
+    "url": "https://example.com/stream80.m3u8",
+    "category": "صحة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "البحرين",
+    "logo": "https://example.com/logo80.png",
+    "description": "قناة الصحة والعناية"
+  },
+  {
+    "name": "قناة الأخبار العربية 9",
+    "url": "https://example.com/stream81.m3u8",
+    "category": "أخبار",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "مصر",
+    "logo": "https://example.com/logo81.png",
+    "description": "قناة إخبارية عربية متميزة"
+  },
+  {
+    "name": "قناة الرياضة العربية 9",
+    "url": "https://example.com/stream82.m3u8",
+    "category": "رياضة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "السعودية",
+    "logo": "https://example.com/logo82.png",
+    "description": "قناة رياضية عربية شاملة"
+  },
+  {
+    "name": "قناة الأفلام العربية 9",
+    "url": "https://example.com/stream83.m3u8",
+    "category": "أفلام",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الإمارات",
+    "logo": "https://example.com/logo83.png",
+    "description": "قناة أفلام عربية وعالمية"
+  },
+  {
+    "name": "قناة الموسيقى العربية 9",
+    "url": "https://example.com/stream84.m3u8",
+    "category": "موسيقى",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "لبنان",
+    "logo": "https://example.com/logo84.png",
+    "description": "قناة موسيقية عربية متنوعة"
+  },
+  {
+    "name": "قناة الأطفال العربية 9",
+    "url": "https://example.com/stream85.m3u8",
+    "category": "أطفال",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الأردن",
+    "logo": "https://example.com/logo85.png",
+    "description": "قناة تعليمية وترفيهية للأطفال"
+  },
+  {
+    "name": "قناة الوثائقيات العربية 9",
+    "url": "https://example.com/stream86.m3u8",
+    "category": "وثائقي",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "المغرب",
+    "logo": "https://example.com/logo86.png",
+    "description": "قناة وثائقية تعليمية"
+  },
+  {
+    "name": "قناة الطبخ العربية 9",
+    "url": "https://example.com/stream87.m3u8",
+    "category": "طبخ",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "تونس",
+    "logo": "https://example.com/logo87.png",
+    "description": "قناة متخصصة في الطبخ العربي"
+  },
+  {
+    "name": "قناة التكنولوجيا العربية 9",
+    "url": "https://example.com/stream88.m3u8",
+    "category": "تكنولوجيا",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الكويت",
+    "logo": "https://example.com/logo88.png",
+    "description": "قناة تقنية ومعلوماتية"
+  },
+  {
+    "name": "قناة السفر والسياحة 9",
+    "url": "https://example.com/stream89.m3u8",
+    "category": "سفر",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "قطر",
+    "logo": "https://example.com/logo89.png",
+    "description": "قناة السفر والاستكشاف"
+  },
+  {
+    "name": "قناة الصحة والجمال 9",
+    "url": "https://example.com/stream90.m3u8",
+    "category": "صحة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "البحرين",
+    "logo": "https://example.com/logo90.png",
+    "description": "قناة الصحة والعناية"
+  },
+  {
+    "name": "قناة الأخبار العربية 10",
+    "url": "https://example.com/stream91.m3u8",
+    "category": "أخبار",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "مصر",
+    "logo": "https://example.com/logo91.png",
+    "description": "قناة إخبارية عربية متميزة"
+  },
+  {
+    "name": "قناة الرياضة العربية 10",
+    "url": "https://example.com/stream92.m3u8",
+    "category": "رياضة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "السعودية",
+    "logo": "https://example.com/logo92.png",
+    "description": "قناة رياضية عربية شاملة"
+  },
+  {
+    "name": "قناة الأفلام العربية 10",
+    "url": "https://example.com/stream93.m3u8",
+    "category": "أفلام",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الإمارات",
+    "logo": "https://example.com/logo93.png",
+    "description": "قناة أفلام عربية وعالمية"
+  },
+  {
+    "name": "قناة الموسيقى العربية 10",
+    "url": "https://example.com/stream94.m3u8",
+    "category": "موسيقى",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "لبنان",
+    "logo": "https://example.com/logo94.png",
+    "description": "قناة موسيقية عربية متنوعة"
+  },
+  {
+    "name": "قناة الأطفال العربية 10",
+    "url": "https://example.com/stream95.m3u8",
+    "category": "أطفال",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الأردن",
+    "logo": "https://example.com/logo95.png",
+    "description": "قناة تعليمية وترفيهية للأطفال"
+  },
+  {
+    "name": "قناة الوثائقيات العربية 10",
+    "url": "https://example.com/stream96.m3u8",
+    "category": "وثائقي",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "المغرب",
+    "logo": "https://example.com/logo96.png",
+    "description": "قناة وثائقية تعليمية"
+  },
+  {
+    "name": "قناة الطبخ العربية 10",
+    "url": "https://example.com/stream97.m3u8",
+    "category": "طبخ",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "تونس",
+    "logo": "https://example.com/logo97.png",
+    "description": "قناة متخصصة في الطبخ العربي"
+  },
+  {
+    "name": "قناة التكنولوجيا العربية 10",
+    "url": "https://example.com/stream98.m3u8",
+    "category": "تكنولوجيا",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "الكويت",
+    "logo": "https://example.com/logo98.png",
+    "description": "قناة تقنية ومعلوماتية"
+  },
+  {
+    "name": "قناة السفر والسياحة 10",
+    "url": "https://example.com/stream99.m3u8",
+    "category": "سفر",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "قطر",
+    "logo": "https://example.com/logo99.png",
+    "description": "قناة السفر والاستكشاف"
+  },
+  {
+    "name": "قناة الصحة والجمال 10",
+    "url": "https://example.com/stream100.m3u8",
+    "category": "صحة",
+    "language": "العربية",
+    "quality": "HD",
+    "country": "البحرين",
+    "logo": "https://example.com/logo100.png",
+    "description": "قناة الصحة والعناية"
+  }
+]

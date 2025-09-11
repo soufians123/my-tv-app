@@ -1,0 +1,36 @@
+#EXTM3U
+#EXTINF:-1 tvg-id="2MTV.ma" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/2M_TV_logo.svg/512px-2M_TV_logo.svg.png" group-title="قنوات مغربية",2M TV
+https://cdnamd-hls-globecast.akamaized.net/live/ramdisk/2m_monde/hls_video_ts_tuhawxpiemz257adfc/2m_monde.m3u8
+
+#EXTINF:-1 tvg-id="2MMonde.ma" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/2M_TV_logo.svg/512px-2M_TV_logo.svg.png" group-title="قنوات مغربية",2M Monde
+https://cdnamd-hls-globecast.akamaized.net/live/ramdisk/2m_monde/hls_video_ts/2m_monde.m3u8
+
+#EXTINF:-1 tvg-id="AlAoula.ma" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Al_Aoula.svg/512px-Al_Aoula.svg.png" group-title="قنوات مغربية",Al Aoula
+https://cdnamd-hls-globecast.akamaized.net/live/ramdisk/al_aoula_inter/hls_video_ts/al_aoula_inter.m3u8
+
+#EXTINF:-1 tvg-id="AlJazeera.qa" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Aljazeera.svg/512px-Aljazeera.svg.png" group-title="أخبار",Al Jazeera
+https://live-hls-web-aje.getaj.net/AJE/01.m3u8
+
+#EXTINF:-1 tvg-id="BBCArabic.uk" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/BBC_Arabic_logo.svg/512px-BBC_Arabic_logo.svg.png" group-title="أخبار",BBC Arabic
+https://vs-cmaf-pushb-ww-live.akamaized.net/x=3/i=urn:bbc:pips:service:bbc_arabic_tv/iptv_hd_abr_v1.mpd
+
+#EXTINF:-1 tvg-id="AlArabiya.ae" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Al_Arabiya.svg/512px-Al_Arabiya.svg.png" group-title="أخبار",Al Arabiya
+https://live.alarabiya.net/alarabiapublish/alarabiya.smil/playlist.m3u8
+
+#EXTINF:-1 tvg-id="MBC1.ae" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/MBC1_logo.svg/512px-MBC1_logo.svg.png" group-title="ترفيه",MBC 1
+https://d3o3cim6uzorb4.cloudfront.net/out/v1/0965e4d7deae49179172426cbfb3bc5e/index.m3u8
+
+#EXTINF:-1 tvg-id="MBC2.ae" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/MBC2_logo.svg/512px-MBC2_logo.svg.png" group-title="أفلام",MBC 2
+https://d3o3cim6uzorb4.cloudfront.net/out/v1/d5bbe570e1414d3bb9a7b2b4b8e8cc7e/index.m3u8
+
+#EXTINF:-1 tvg-id="MBC3.ae" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/MBC3_logo.svg/512px-MBC3_logo.svg.png" group-title="أطفال",MBC 3
+https://d3o3cim6uzorb4.cloudfront.net/out/v1/b0b3a0e6750d4408bb86d703aaad675e/index.m3u8
+
+#EXTINF:-1 tvg-id="MBCAction.ae" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/MBC_Action_logo.svg/512px-MBC_Action_logo.svg.png" group-title="أفلام",MBC Action
+https://d3o3cim6uzorb4.cloudfront.net/out/v1/68dd761538e5460096c42422199e0b0c/index.m3u8
+
+#EXTINF:-1 tvg-id="BeINSports1.qa" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/BeIN_Sports_logo.svg/512px-BeIN_Sports_logo.svg.png" group-title="رياضة",beIN Sports 1
+https://d1cy85syyhvqz5.cloudfront.net/v1/master/7b67fbda7ab859400a821e9aa0deda20ab7ca3d2/BeIN_SPORTS_1_ARABIC/playlist.m3u8
+
+#EXTINF:-1 tvg-id="RotanaMusic.sa" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Rotana_Music_logo.svg/512px-Rotana_Music_logo.svg.png" group-title="موسيقى",Rotana Music
+https://bcovlive-a.akamaihd.net/r2d2c4ca5bf57456fb1a3e6ac335fdd5c/eu-west-1/eu-west-1/6057949479001/playlist.m3u8

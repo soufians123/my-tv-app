@@ -1,0 +1,51 @@
+#EXTM3U
+#EXTINF:-1 tvg-id="SkyNewsArabia.ae" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Sky_News_Arabia_logo.svg/512px-Sky_News_Arabia_logo.svg.png" group-title="أخبار",Sky News Arabia
+https://stream.skynewsarabia.com/hls/sna.m3u8
+
+#EXTINF:-1 tvg-id="France24Arabic.fr" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/France24.svg/512px-France24.svg.png" group-title="أخبار",France 24 Arabic
+https://static.france24.com/live/F24_AR_HI_HLS/live_web.m3u8
+
+#EXTINF:-1 tvg-id="CNNArabic.ae" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/CNN_logo.svg/512px-CNN_logo.svg.png" group-title="أخبار",CNN Arabic
+https://cnn-cnninternational-1-eu.rakuten.wurl.tv/playlist.m3u8
+
+#EXTINF:-1 tvg-id="BeINSports2.qa" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/BeIN_Sports_logo.svg/512px-BeIN_Sports_logo.svg.png" group-title="رياضة",beIN Sports 2
+https://d1cy85syyhvqz5.cloudfront.net/v1/master/7b67fbda7ab859400a821e9aa0deda20ab7ca3d2/BeIN_SPORTS_2_ARABIC/playlist.m3u8
+
+#EXTINF:-1 tvg-id="KTVSport.kw" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/KTV_Sport_logo.svg/512px-KTV_Sport_logo.svg.png" group-title="رياضة",KTV Sport
+https://kwtspta.cdn.mangomolo.com/sp/smil:sp.stream.smil/playlist.m3u8
+
+#EXTINF:-1 tvg-id="AbuDhabiSports1.ae" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Abu_Dhabi_Sports_logo.svg/512px-Abu_Dhabi_Sports_logo.svg.png" group-title="رياضة",Abu Dhabi Sports 1
+https://vo-live.cdb.cdn.orange.com/Content/Channel/AbuDhabiSportsChannel1/HLS/index.m3u8
+
+#EXTINF:-1 tvg-id="MBC4.ae" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/MBC4_logo.svg/512px-MBC4_logo.svg.png" group-title="أفلام",MBC 4
+https://d3o3cim6uzorb4.cloudfront.net/out/v1/c08681f81775496ab66c8e2aabc4264e/index.m3u8
+
+#EXTINF:-1 tvg-id="MBCMax.ae" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/MBC_Max_logo.svg/512px-MBC_Max_logo.svg.png" group-title="أفلام",MBC Max
+https://d3o3cim6uzorb4.cloudfront.net/out/v1/b0b3a0e6750d4408bb86d703aaad675e/index.m3u8
+
+#EXTINF:-1 tvg-id="OSNMovies.ae" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/OSN_logo.svg/512px-OSN_logo.svg.png" group-title="أفلام",OSN Movies
+https://d3o3cim6uzorb4.cloudfront.net/out/v1/68dd761538e5460096c42422199e0b0c/index.m3u8
+
+#EXTINF:-1 tvg-id="RotanaKids.sa" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Rotana_Kids_logo.svg/512px-Rotana_Kids_logo.svg.png" group-title="أطفال",Rotana Kids
+https://bcovlive-a.akamaihd.net/r2d2c4ca5bf57456fb1a3e6ac335fdd5c/eu-west-1/eu-west-1/6057949479001/playlist.m3u8
+
+#EXTINF:-1 tvg-id="SpacetoonArabic.ae" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Spacetoon_logo.svg/512px-Spacetoon_logo.svg.png" group-title="أطفال",Spacetoon
+https://shls-spacetoon-prod-dub.shahid.net/out/v1/6240b773a3f34cca95d119f9e76aec02/index.m3u8
+
+#EXTINF:-1 tvg-id="BabyTV.uk" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/BabyTV_logo.svg/512px-BabyTV_logo.svg.png" group-title="أطفال",Baby TV
+https://babytv-hls-live.ssl.cdn.cra.cz/channels/babytv_arabic_25/playlist.m3u8
+
+#EXTINF:-1 tvg-id="RotanaClassic.sa" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Rotana_Classic_logo.svg/512px-Rotana_Classic_logo.svg.png" group-title="موسيقى",Rotana Classic
+https://bcovlive-a.akamaihd.net/r2d2c4ca5bf57456fb1a3e6ac335fdd5c/eu-west-1/eu-west-1/6057949479001/playlist.m3u8
+
+#EXTINF:-1 tvg-id="MelodyAflam.ae" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Melody_Aflam_logo.svg/512px-Melody_Aflam_logo.svg.png" group-title="موسيقى",Melody Aflam
+https://d3o3cim6uzorb4.cloudfront.net/out/v1/68dd761538e5460096c42422199e0b0c/index.m3u8
+
+#EXTINF:-1 tvg-id="AlResalah.sa" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Al_Resalah_logo.svg/512px-Al_Resalah_logo.svg.png" group-title="ديني",Al Resalah
+https://live-resalah.akamaized.net/hls/live/2038650/resalah/resalah.m3u8
+
+#EXTINF:-1 tvg-id="IqraaTV.sa" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Iqraa_TV_logo.svg/512px-Iqraa_TV_logo.svg.png" group-title="ديني",Iqraa TV
+https://iqraac.cdn.mangomolo.com/iqraa/smil:iqraa.stream.smil/playlist.m3u8
+
+#EXTINF:-1 tvg-id="AlMajd.sa" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Al_Majd_logo.svg/512px-Al_Majd_logo.svg.png" group-title="ديني",Al Majd
+https://live-almajd.akamaized.net/hls/live/2038650/almajd/almajd.m3u8

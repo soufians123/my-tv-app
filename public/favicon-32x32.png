@@ -1,0 +1,32 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="zomigaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+    <linearGradient id="playGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#3B82F6" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="16" cy="16" r="15" fill="url(#zomigaGradient)" opacity="0.2" stroke="url(#zomigaGradient)" stroke-width="1" />
+  
+  <!-- TV/Monitor Screen -->
+  <rect x="6" y="9" width="20" height="14" rx="2" fill="url(#zomigaGradient)" />
+  <rect x="7" y="10" width="18" height="12" rx="1" fill="white" />
+  
+  <!-- Play Button -->
+  <polygon points="12,13 12,19 18,16" fill="url(#playGradient)" />
+  
+  <!-- Gaming Controller Elements -->
+  <circle cx="10" cy="26" r="1.5" fill="url(#zomigaGradient)" />
+  <circle cx="22" cy="26" r="1.5" fill="url(#zomigaGradient)" />
+  
+  <!-- Content/Article Lines -->
+  <rect x="24" y="6" width="6" height="1" rx="0.5" fill="url(#zomigaGradient)" />
+  <rect x="24" y="8" width="4" height="1" rx="0.5" fill="url(#zomigaGradient)" />
+  <rect x="24" y="10" width="5" height="1" rx="0.5" fill="url(#zomigaGradient)" />
+</svg>

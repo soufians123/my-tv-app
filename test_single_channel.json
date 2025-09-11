@@ -1,0 +1,13 @@
+[
+  {
+    "name": "قناة اختبار",
+    "url": "https://example.com/test.m3u8",
+    "category": "عامة",
+    "logo": "https://example.com/logo.png",
+    "country": "السعودية",
+    "language": "العربية",
+    "quality": "HD",
+    "description": "قناة اختبار للتأكد من عمل النظام",
+    "status": "active"
+  }
+]
