@@ -74,6 +74,9 @@ export const StatsCardSkeleton = () => {
   );
 };
 
+// Stat Card Skeleton (alias for compatibility)
+export const StatCardSkeleton = StatsCardSkeleton;
+
 // Enhanced Page Loading Spinner
 export const PageLoader = ({ message = 'جاري التحميل...' }) => {
   return (
