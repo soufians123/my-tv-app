@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { 
   Trophy, Star, Crown, Medal, Target, 
-  TrendingUp, Award, Zap, Fire,
+  TrendingUp, Award, Zap, Flame,
   Users, Calendar, Clock, BarChart3
 } from 'lucide-react';
 
@@ -107,7 +107,7 @@ const ACHIEVEMENTS = {
     type: ACHIEVEMENT_TYPES.WIN_STREAK,
     requirement: 5,
     points: 150,
-    icon: Fire,
+    icon: Flame,
     rarity: 'uncommon'
   },
   UNSTOPPABLE: {

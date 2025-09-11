@@ -6,8 +6,9 @@ import {
   FiUserCheck, FiUserPlus, FiEdit, FiTrash2, FiEye, FiSearch,
   FiFilter, FiSettings, FiArrowLeft, FiShield, FiMail,
   FiCalendar, FiActivity, FiMoreVertical, FiCheck, FiX,
-  FiLock, FiUnlock, FiAlertTriangle, FiCrown, FiUsers
+  FiLock, FiUnlock, FiAlertTriangle, FiUsers
 } from 'react-icons/fi';
+import { Crown } from 'lucide-react';
 
 export default function AdminsManagement() {
   const [admins, setAdmins] = useState([]);
@@ -368,7 +369,7 @@ export default function AdminsManagement() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="p-2 bg-purple-100 rounded-lg">
-                <FiCrown className="w-6 h-6 text-purple-600" />
+                <Crown className="w-6 h-6 text-purple-600" />
               </div>
               <div className="mr-4">
                 <p className="text-sm font-medium text-gray-600">مديرين عامين</p>
@@ -472,7 +473,7 @@ export default function AdminsManagement() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getAdminLevelColor(admin.admin_level)}`}>
-                        {admin.admin_level === 'super_admin' && <FiCrown className="w-3 h-3 ml-1" />}
+                        {admin.admin_level === 'super_admin' && <Crown className="w-3 h-3 ml-1" />}
                         {getAdminLevelText(admin.admin_level)}
                       </span>
                     </td>
