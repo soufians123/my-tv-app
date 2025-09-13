@@ -88,7 +88,13 @@ export const AuthProvider = ({ children }) => {
   const signUp = async (email, password, userData = {}) => {
     try {
       setLoading(true)
-      const { data, error } = await supabase.auth.signUp({
+      
+      // إضافة timeout للطلب لتجنب التعليق
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 15000)
+      )
+      
+      const authPromise = supabase.auth.signUp({
         email,
         password,
         options: {
@@ -96,9 +102,18 @@ export const AuthProvider = ({ children }) => {
         }
       })
       
+      const { data, error } = await Promise.race([authPromise, timeoutPromise])
+      
       if (error) throw error
       return { data, error: null }
     } catch (error) {
+      console.error('SignUp error:', error)
+      
+      // معالجة أفضل للأخطاء
+      if (error.message === 'Request timeout') {
+        return { data: null, error: { message: 'انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى.' } }
+      }
+      
       return { data: null, error }
     } finally {
       setLoading(false)
@@ -108,14 +123,29 @@ export const AuthProvider = ({ children }) => {
   const signIn = async (email, password) => {
     try {
       setLoading(true)
-      const { data, error } = await supabase.auth.signInWithPassword({
+      
+      // إضافة timeout للطلب لتجنب التعليق
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 15000)
+      )
+      
+      const authPromise = supabase.auth.signInWithPassword({
         email,
         password
       })
       
+      const { data, error } = await Promise.race([authPromise, timeoutPromise])
+      
       if (error) throw error
       return { data, error: null }
     } catch (error) {
+      console.error('SignIn error:', error)
+      
+      // معالجة أفضل للأخطاء
+      if (error.message === 'Request timeout') {
+        return { data: null, error: { message: 'انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى.' } }
+      }
+      
       return { data: null, error }
     } finally {
       setLoading(false)

@@ -44,8 +44,10 @@ const LoginPage = () => {
           toast.error('بيانات الدخول غير صحيحة')
         } else if (result.error.message?.includes('Email not confirmed')) {
           toast.error('يرجى تأكيد البريد الإلكتروني أولاً')
+        } else if (result.error.message?.includes('انتهت مهلة الاتصال')) {
+          toast.error('انتهت مهلة الاتصال. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى')
         } else {
-          toast.error('خطأ في تسجيل الدخول')
+          toast.error('خطأ في تسجيل الدخول: ' + (result.error.message || 'خطأ غير معروف'))
         }
       } else {
         toast.success('تم تسجيل الدخول بنجاح')
