@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, createContext } from 'react'
 import { X, Eye, MousePointerClick, TrendingUp, Calendar, Target, BarChart3, Settings, Plus, Edit, Trash2 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { getAllActiveAds } from '../lib/advertisementsService'
+import { Button, Card, Badge } from './ui/unified-components'
 
 // Advertisement Context
 const AdvertisementContext = createContext()
@@ -357,7 +358,7 @@ const CardAd = ({ position = 'sidebar', className = '' }) => {
             <img 
               src={ad.image} 
               alt={ad.title}
-              className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+              className="w-full h-full object-contain group-hover:scale-102 transition-transform duration-500"
             />
           </div>
           
@@ -599,7 +600,7 @@ const InlineAd = ({ position = 'content', size = 'medium', className = '' }) => 
             <img 
               src={currentAd.image} 
               alt={currentAd.title}
-              className={`object-cover group-hover:scale-102 transition-transform duration-500 ${
+              className={`object-contain group-hover:scale-102 transition-transform duration-500 ${
                 size === 'small' ? 'w-12 h-12' : size === 'large' ? 'w-20 h-20' : 'w-16 h-16'
               }`}
             />

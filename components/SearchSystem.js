@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Search, Filter, X, ChevronDown, Star, Eye, MapPin, Tv, Gamepad2, FileText, ShoppingBag } from 'lucide-react'
 import { useToast } from './ToastSystem'
+import { Button, Input, Card, Badge } from './ui/unified-components'
 
 const SearchSystem = ({ data, onResults, placeholder = "البحث...", type = "channels" }) => {
   const [searchQuery, setSearchQuery] = useState('')

@@ -7,6 +7,7 @@ import AdminSidebar from './AdminSidebar';
 import { Loader2 } from 'lucide-react';
 import Head from 'next/head';
 import { toast } from 'react-hot-toast';
+import { Loading, Card } from '../ui/unified-components';
 
 const AdminLayout = ({ children, title = 'لوحة التحكم', description = 'نظام إدارة متقدم' }) => {
   const router = useRouter();
@@ -74,11 +75,8 @@ const AdminLayout = ({ children, title = 'لوحة التحكم', description = 
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">جاري التحميل...</p>
-        </div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <Loading text="جاري التحميل..." />
       </div>
     );
   }

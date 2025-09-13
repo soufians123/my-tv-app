@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BarChart3, TrendingUp, TrendingDown, Activity, Zap } from 'lucide-react'
+import { Button, Select, Card, Badge } from '../ui/unified-components'
 
 const AdvancedChart = ({ title, data, type = 'line', color = 'blue', height = 300 }) => {
   const [animationProgress, setAnimationProgress] = useState(0)
@@ -259,32 +260,41 @@ const AdvancedChart = ({ title, data, type = 'line', color = 'blue', height = 30
   const trend = calculateTrend()
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+    <Card className="p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center">
-          <BarChart3 className="w-5 h-5 text-gray-500 mr-2" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
+        <div className="flex items-center gap-3">
+          <div className={`p-2 rounded-lg bg-${color}-100 dark:bg-${color}-900/20`}>
+            <BarChart3 className={`w-5 h-5 text-${color}-600 dark:text-${color}-400`} />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">آخر 30 يوم</p>
+          </div>
         </div>
-        <div className="flex items-center space-x-2 space-x-reverse">
+        
+        <div className="flex items-center gap-2">
           {trend.direction === 'up' && (
-            <div className="flex items-center text-green-600 text-sm font-medium">
-              <TrendingUp className="w-4 h-4 mr-1" />
+            <Badge variant="success" className="flex items-center gap-1">
+              <TrendingUp className="w-3 h-3" />
               +{trend.percentage}%
-            </div>
+            </Badge>
           )}
           {trend.direction === 'down' && (
-            <div className="flex items-center text-red-600 text-sm font-medium">
-              <TrendingDown className="w-4 h-4 mr-1" />
+            <Badge variant="destructive" className="flex items-center gap-1">
+              <TrendingDown className="w-3 h-3" />
               -{trend.percentage}%
-            </div>
+            </Badge>
           )}
           {trend.direction === 'neutral' && (
-            <div className="flex items-center text-gray-600 text-sm font-medium">
-              <Activity className="w-4 h-4 mr-1" />
+            <Badge variant="secondary" className="flex items-center gap-1">
+              <Activity className="w-3 h-3" />
               مستقر
-            </div>
+            </Badge>
           )}
+          <Button variant="ghost" size="sm">
+            <Zap className="w-4 h-4" />
+          </Button>
         </div>
       </div>
       
@@ -314,7 +324,7 @@ const AdvancedChart = ({ title, data, type = 'line', color = 'blue', height = 30
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   )
 }
 

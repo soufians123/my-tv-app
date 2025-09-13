@@ -7,6 +7,7 @@ import Hls from 'hls.js'
 import { useToast } from '../../components/ToastSystem'
 import { useFavorites } from '../../components/FavoritesSystem'
 import { getChannelById } from '../../lib/supabaseChannelsService'
+import LazyImage from '../../components/LazyImage'
 
 export default function ChannelPlayer() {
   const router = useRouter()
@@ -330,7 +331,7 @@ export default function ChannelPlayer() {
     } else {
       addFavorite({
         id: channel.id,
-        name: channel.name,
+        name: channel.name_ar || channel.name,
         logo: channel.logo_url,
         category: channel.category
       })
@@ -343,8 +344,8 @@ export default function ChannelPlayer() {
     if (!channel) return
     
     const shareData = {
-      title: channel.name,
-      text: `شاهد ${channel.name} - ${channel.description}`,
+      title: channel.name_ar || channel.name,
+      text: `شاهد ${channel.name_ar || channel.name} - ${channel.description}`,
       url: window.location.href
     }
     
@@ -603,13 +604,13 @@ export default function ChannelPlayer() {
         {/* Channel Info */}
         <div className="bg-white rounded-lg shadow-sm p-6">
           <div className="flex items-start space-x-4 space-x-reverse">
-            <img
+            <LazyImage
               src={channel.logo_url}
-              alt={channel.name}
+              alt={channel.name_ar || channel.name}
               className="w-16 h-16 rounded-lg object-cover"
             />
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">{channel.name}</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">{channel.name_ar || channel.name}</h1>
               <p className="text-gray-600 mb-4">{channel.description}</p>
               <div className="flex items-center space-x-6 space-x-reverse text-sm text-gray-500">
                 <span>البلد: {channel.country}</span>

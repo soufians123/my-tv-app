@@ -221,6 +221,8 @@ const AdvancedChannelsManagement = () => {
         return
       }
 
+      console.log('Data being sent to updateChannel:', formData)
+      console.log('Category:', formData.category, 'Sort Order:', formData.sort_order)
       const updatedChannel = await supabaseChannelsService.updateChannel(editingChannel.id, formData)
       if (updatedChannel) {
         setChannels(channels.map(ch => ch.id === editingChannel.id ? updatedChannel : ch))
@@ -300,10 +302,12 @@ const AdvancedChannelsManagement = () => {
   }
 
   const openEditModal = (channel) => {
+    console.log('Channel data in openEditModal:', channel)
+    console.log('Channel stream_url:', channel.stream_url)
     setEditingChannel(channel)
-    setFormData({
+    const formDataToSet = {
       name: channel.name || '',
-      streaming_url: channel.streaming_url || '',
+      streaming_url: channel.stream_url || '',
       logo_url: channel.logo_url || '',
       category: channel.category || '',
       country: channel.country || '',
@@ -314,7 +318,9 @@ const AdvancedChannelsManagement = () => {
       tags: channel.tags || [],
       is_premium: channel.is_premium || false,
       sort_order: channel.sort_order || 0
-    })
+    }
+    console.log('FormData to set:', formDataToSet)
+    setFormData(formDataToSet)
     setShowEditModal(true)
   }
 
@@ -750,6 +756,7 @@ const AdvancedChannelsManagement = () => {
         )}
 
         {/* Channel Modals */}
+        {console.log('Before ChannelModals - formData:', formData, 'showEditModal:', showEditModal)}
         <ChannelModals
           showAddModal={showAddModal}
           setShowAddModal={setShowAddModal}

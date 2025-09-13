@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X, Upload, Image, Tv, Save, AlertCircle, CheckCircle, Star, Globe, Tag, Monitor, Headphones } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { Button, Input, Select, Textarea, Modal, Card, Badge } from '../ui/unified-components'
 
 const ChannelModals = ({ 
   showAddModal, 
@@ -23,6 +24,7 @@ const ChannelModals = ({
   const [uploading, setUploading] = useState(false)
 
   const handleInputChange = (field, value) => {
+    console.log(`Field changed: ${field} = ${value}`)
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
@@ -92,8 +94,10 @@ const ChannelModals = ({
     setUploading(false)
   }
 
-  const ModalContent = ({ isEdit = false }) => (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+  const ModalContent = ({ isEdit = false }) => {
+    console.log('ModalContent rendered - isEdit:', isEdit, 'formData:', formData)
+    return (
+    <div className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center">
@@ -109,7 +113,9 @@ const ChannelModals = ({
             </p>
           </div>
         </div>
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => {
             if (isEdit) {
               setShowEditModal(false)
@@ -118,10 +124,9 @@ const ChannelModals = ({
             }
             resetModal()
           }}
-          className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
         >
           <X className="w-5 h-5" />
-        </button>
+        </Button>
       </div>
 
       {/* Form Content */}
@@ -140,11 +145,10 @@ const ChannelModals = ({
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   اسم القناة *
                 </label>
-                <input
+                <Input
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="أدخل اسم القناة"
                   required
                 />
@@ -155,14 +159,30 @@ const ChannelModals = ({
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   رابط البث *
                 </label>
-                <input
+                {console.log('ChannelModals - formData.streaming_url:', formData.streaming_url)}
+                <Input
                   type="url"
-                  value={formData.streaming_url}
+                  value={formData.streaming_url || ''}
                   onChange={(e) => handleInputChange('streaming_url', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="https://example.com/stream.m3u8"
                   required
                 />
+                {/* عرض رابط البث الحالي إذا كان موجوداً */}
+                {formData.streaming_url && (
+                  <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <div className="flex items-start space-x-2 space-x-reverse">
+                      <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
+                          رابط البث الحالي:
+                        </p>
+                        <p className="text-sm text-blue-700 dark:text-blue-300 break-all font-mono bg-white dark:bg-gray-800 px-2 py-1 rounded border">
+                          {formData.streaming_url}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Description */}
@@ -170,11 +190,10 @@ const ChannelModals = ({
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   الوصف
                 </label>
-                <textarea
+                <Textarea
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
                   placeholder="وصف مختصر للقناة"
                 />
               </div>
@@ -184,11 +203,10 @@ const ChannelModals = ({
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   العلامات (مفصولة بفواصل)
                 </label>
-                <input
+                <Input
                   type="text"
                   value={formData.tags?.join(', ') || ''}
                   onChange={handleTagsChange}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="رياضة, أخبار, ترفيه"
                 />
               </div>
@@ -207,16 +225,15 @@ const ChannelModals = ({
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     الفئة
                   </label>
-                  <select
+                  <Select
                     value={formData.category}
-                    onChange={(e) => handleInputChange('category', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    onValueChange={(value) => handleInputChange('category', value)}
                   >
                     <option value="">اختر الفئة</option>
                     {categories.map(category => (
                       <option key={category} value={category}>{category}</option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
 
                 {/* Country */}
@@ -224,16 +241,15 @@ const ChannelModals = ({
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     البلد
                   </label>
-                  <select
+                  <Select
                     value={formData.country}
-                    onChange={(e) => handleInputChange('country', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    onValueChange={(value) => handleInputChange('country', value)}
                   >
                     <option value="">اختر البلد</option>
                     {countries.map(country => (
                       <option key={country} value={country}>{country}</option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
 
                 {/* Language */}
@@ -241,16 +257,15 @@ const ChannelModals = ({
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     اللغة
                   </label>
-                  <select
+                  <Select
                     value={formData.language}
-                    onChange={(e) => handleInputChange('language', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    onValueChange={(value) => handleInputChange('language', value)}
                   >
                     <option value="">اختر اللغة</option>
                     {languages.map(language => (
                       <option key={language} value={language}>{language}</option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
 
                 {/* Quality */}
@@ -258,15 +273,14 @@ const ChannelModals = ({
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     الجودة
                   </label>
-                  <select
+                  <Select
                     value={formData.quality}
-                    onChange={(e) => handleInputChange('quality', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    onValueChange={(value) => handleInputChange('quality', value)}
                   >
                     {qualities.map(quality => (
                       <option key={quality} value={quality}>{quality}</option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -286,14 +300,13 @@ const ChannelModals = ({
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   رابط الشعار
                 </label>
-                <input
+                <Input
                   type="url"
                   value={formData.logo_url}
                   onChange={(e) => {
                     handleInputChange('logo_url', e.target.value)
                     setLogoPreview(e.target.value)
                   }}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="https://example.com/logo.png"
                 />
               </div>
@@ -379,16 +392,15 @@ const ChannelModals = ({
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   الحالة
                 </label>
-                <select
+                <Select
                   value={formData.status}
-                  onChange={(e) => handleInputChange('status', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  onValueChange={(value) => handleInputChange('status', value)}
                 >
                   <option value="active">نشط</option>
                   <option value="inactive">غير نشط</option>
                   <option value="maintenance">صيانة</option>
                   <option value="blocked">محظور</option>
-                </select>
+                </Select>
               </div>
 
               {/* Sort Order */}
@@ -396,11 +408,10 @@ const ChannelModals = ({
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   ترتيب العرض
                 </label>
-                <input
+                <Input
                   type="number"
                   value={formData.sort_order}
                   onChange={(e) => handleInputChange('sort_order', parseInt(e.target.value) || 0)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="0"
                   min="0"
                 />
@@ -438,7 +449,8 @@ const ChannelModals = ({
           الحقول المطلوبة مميزة بـ *
         </div>
         <div className="flex items-center space-x-3 space-x-reverse">
-          <button
+          <Button
+            variant="outline"
             onClick={() => {
               if (isEdit) {
                 setShowEditModal(false)
@@ -447,38 +459,37 @@ const ChannelModals = ({
               }
               resetModal()
             }}
-            className="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             إلغاء
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={isEdit ? handleEditChannel : handleAddChannel}
             disabled={!formData.name || !formData.streaming_url}
-            className="flex items-center px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Save className="w-4 h-4 mr-2" />
             {isEdit ? 'حفظ التغييرات' : 'إضافة القناة'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
   )
+  }
 
   return (
     <>
-      {/* Add Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      {/* Add Channel Modal */}
+      <Modal isOpen={showAddModal} onClose={() => { setShowAddModal(false); resetModal(); }}>
+        <Card className="p-0">
           <ModalContent isEdit={false} />
-        </div>
-      )}
+        </Card>
+      </Modal>
 
-      {/* Edit Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      {/* Edit Channel Modal */}
+      <Modal isOpen={showEditModal} onClose={() => { setShowEditModal(false); resetModal(); }}>
+        <Card className="p-0">
           <ModalContent isEdit={true} />
-        </div>
-      )}
+        </Card>
+      </Modal>
     </>
   )
 }

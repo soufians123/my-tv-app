@@ -2,6 +2,7 @@ import { useState, useEffect, createContext, useContext } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from './ToastSystem'
 import { MessageCircle, Send, ThumbsUp, ThumbsDown, Trash2, Eye, EyeOff, Flag, Reply } from 'lucide-react'
+import { Button, Input, Card, Badge } from './ui/unified-components'
 
 // إنشاء Context للتعليقات
 const CommentsContext = createContext()

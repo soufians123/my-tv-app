@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "build:analyze": "ANALYZE=true next build",
+    "analyze": "npm run build && npx webpack-bundle-analyzer .next/static/chunks/*.js",
     "build:production": "NODE_ENV=production next build",
     "export": "next export",
     "type-check": "tsc --noEmit",
@@ -18,6 +19,7 @@
     "@supabase/auth-helpers-nextjs": "^0.8.7",
     "@supabase/auth-helpers-react": "^0.4.2",
     "@supabase/supabase-js": "^2.38.4",
+    "clsx": "^2.1.1",
     "dotenv": "^17.2.1",
     "hls.js": "^1.6.11",
     "lucide-react": "^0.294.0",
@@ -25,7 +27,8 @@
     "react": "^18",
     "react-dom": "^18",
     "react-hot-toast": "^2.4.1",
-    "react-icons": "^4.12.0"
+    "react-icons": "^4.12.0",
+    "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -36,6 +39,7 @@
     "eslint-config-next": "14.0.4",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "webpack-bundle-analyzer": "^4.10.2"
   }
 }

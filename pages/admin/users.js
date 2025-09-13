@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import AdminLayout from '../../components/admin/AdminLayout'
+import { AdminTable, StatsCards, SearchAndFilter, AdminModal, ActionButtons } from '../../components/admin/shared'
 import { 
   Users, 
-  Search, 
-  Filter, 
-  MoreVertical, 
-  Edit, 
-  Trash2, 
   Shield, 
   ShieldCheck,
   Mail,
@@ -16,12 +12,10 @@ import {
   Ban,
   CheckCircle,
   XCircle,
-  ArrowLeft,
   Plus,
   Download,
   Upload,
-  Settings,
-  X
+  Settings
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Link from 'next/link'

@@ -27,6 +27,60 @@ const nextConfig = {
   // Build optimizations
   swcMinify: true,
   
+  // Bundle optimization
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Optimize bundle splitting
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        maxSize: 244000,
+        cacheGroups: {
+          vendor: {
+            test: /[\/]node_modules[\/]/,
+            name: 'vendors',
+            priority: 10,
+            reuseExistingChunk: true,
+          },
+          react: {
+            test: /[\/]node_modules[\/](react|react-dom)[\/]/,
+            name: 'react',
+            priority: 20,
+            reuseExistingChunk: true,
+          },
+          hlsjs: {
+            test: /[\/]node_modules[\/]hls\.js[\/]/,
+            name: 'hlsjs',
+            priority: 15,
+            reuseExistingChunk: true,
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+        },
+      }
+      
+      // Tree shaking optimization
+      config.optimization.usedExports = true;
+      config.optimization.sideEffects = false;
+    }
+    
+    // Bundle analyzer
+    if (process.env.ANALYZE) {
+      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+      config.plugins.push(
+        new BundleAnalyzerPlugin({
+          analyzerMode: 'server',
+          openAnalyzer: true,
+        })
+      );
+    }
+    
+    return config
+  },
+  
   // Headers for better caching and security
   async headers() {
     return [

@@ -18,6 +18,7 @@ import {
   MoreVertical
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { Button, Badge, Alert, Card } from '../ui/unified-components'
 
 const NotificationSystem = ({ isOpen, onClose }) => {
   const [notifications, setNotifications] = useState([
@@ -220,7 +221,7 @@ const NotificationSystem = ({ isOpen, onClose }) => {
       />
       
       {/* Panel */}
-      <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white dark:bg-gray-800 shadow-xl transform transition-transform">
+      <Card className="absolute right-0 top-0 h-full w-full max-w-md shadow-xl transform transition-transform">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
@@ -234,12 +235,13 @@ const NotificationSystem = ({ isOpen, onClose }) => {
               </p>
             </div>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
             <X className="w-5 h-5 text-gray-500" />
-          </button>
+          </Button>
         </div>
 
         {/* Controls */}
@@ -271,12 +273,14 @@ const NotificationSystem = ({ isOpen, onClose }) => {
             </div>
             
             {unreadCount > 0 && (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={markAllAsRead}
                 className="text-sm text-primary-600 hover:text-primary-700 font-medium"
               >
                 تعليم الكل كمقروء
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -341,21 +345,25 @@ const NotificationSystem = ({ isOpen, onClose }) => {
                           
                           <div className="flex items-center space-x-2 space-x-reverse">
                             {notification.actions?.map((action, index) => (
-                              <button
+                              <Button
                                 key={index}
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => handleAction(notification, action.action)}
                                 className="text-xs text-primary-600 hover:text-primary-700 font-medium"
                               >
                                 {action.label}
-                              </button>
+                              </Button>
                             ))}
                             
-                            <button
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={() => deleteNotification(notification.id)}
                               className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                             >
                               <X className="w-3 h-3 text-gray-400" />
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -373,12 +381,16 @@ const NotificationSystem = ({ isOpen, onClose }) => {
             <div className="text-xs text-gray-500 dark:text-gray-400">
               آخر تحديث: {new Date().toLocaleTimeString('ar-SA')}
             </div>
-            <button className="text-xs text-primary-600 hover:text-primary-700 font-medium">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-primary-600 hover:text-primary-700 font-medium"
+            >
               إعدادات الإشعارات
-            </button>
+            </Button>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }

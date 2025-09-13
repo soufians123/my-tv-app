@@ -15,6 +15,7 @@ import {
   Palette
 } from 'lucide-react';
 import Link from 'next/link';
+import { Button, Input, Badge, Card } from '../ui/unified-components';
 
 const AdminHeader = ({ onToggleSidebar, sidebarCollapsed }) => {
   const { theme, toggleTheme, primaryColor, updatePrimaryColor, isDark } = useTheme();
@@ -81,25 +82,26 @@ const AdminHeader = ({ onToggleSidebar, sidebarCollapsed }) => {
     <header className="admin-header">
       <div className="flex items-center gap-4">
         {/* Sidebar Toggle */}
-        <button
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={onToggleSidebar}
-          className="admin-btn admin-btn-secondary p-2"
           title={sidebarCollapsed ? 'توسيع الشريط الجانبي' : 'طي الشريط الجانبي'}
         >
           <Menu size={20} />
-        </button>
+        </Button>
 
         {/* Search Bar */}
         <div className="relative hidden md:block">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-gray-400" />
           </div>
-          <input
+          <Input
             type="text"
             placeholder="البحث في لوحة التحكم..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="admin-input pl-10 w-64"
+            className="pl-10 w-64"
           />
         </div>
       </div>
@@ -107,30 +109,34 @@ const AdminHeader = ({ onToggleSidebar, sidebarCollapsed }) => {
       <div className="flex items-center gap-3">
         {/* Color Picker */}
         <div className="relative">
-          <button
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => setShowColorPicker(!showColorPicker)}
-            className="admin-btn admin-btn-secondary p-2"
             title="تغيير اللون الأساسي"
           >
             <Palette size={20} />
-          </button>
+          </Button>
           
           {showColorPicker && (
             <div className="absolute right-0 top-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 z-50">
               <h3 className="text-sm font-medium mb-3">اختر اللون الأساسي</h3>
               <div className="grid grid-cols-4 gap-2">
                 {colorOptions.map((color) => (
-                  <button
+                  <Button
                     key={color.value}
+                    variant="ghost"
+                    size="sm"
                     onClick={() => handleColorChange(color.value)}
-                    className={`w-8 h-8 rounded-full border-2 transition-all ${
+                    className={`w-8 h-8 rounded-full border-2 transition-all p-0 ${
                       primaryColor === color.value 
                         ? 'border-gray-400 scale-110' 
                         : 'border-gray-200 hover:scale-105'
                     }`}
                     style={{ backgroundColor: color.value }}
                     title={color.name}
-                  />
+                  >
+                  </Button>
                 ))}
               </div>
             </div>
@@ -138,28 +144,31 @@ const AdminHeader = ({ onToggleSidebar, sidebarCollapsed }) => {
         </div>
 
         {/* Theme Toggle */}
-        <button
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={toggleTheme}
-          className="admin-btn admin-btn-secondary p-2"
           title={isDark ? 'التبديل للوضع الفاتح' : 'التبديل للوضع المظلم'}
         >
           {isDark ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
+        </Button>
 
         {/* Notifications */}
         <div className="relative">
-          <button
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => setShowNotifications(!showNotifications)}
-            className="admin-btn admin-btn-secondary p-2 relative"
             title="الإشعارات"
+            className="relative"
           >
             <Bell size={20} />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 {unreadCount}
-              </span>
+              </Badge>
             )}
-          </button>
+          </Button>
 
           {showNotifications && (
             <div className="absolute right-0 top-12 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
@@ -201,15 +210,23 @@ const AdminHeader = ({ onToggleSidebar, sidebarCollapsed }) => {
         </div>
 
         {/* Settings */}
-        <Link href="/admin/settings" className="admin-btn admin-btn-secondary p-2" title="الإعدادات">
-          <Settings size={20} />
-        </Link>
+        <Button
+          variant="secondary"
+          size="sm"
+          asChild
+          title="الإعدادات"
+        >
+          <Link href="/admin/settings">
+            <Settings size={20} />
+          </Link>
+        </Button>
 
         {/* User Menu */}
         <div className="relative">
-          <button
+          <Button
+            variant="secondary"
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="flex items-center gap-2 admin-btn admin-btn-secondary"
+            className="flex items-center gap-2"
           >
             <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
               {user?.email?.charAt(0).toUpperCase() || 'A'}
@@ -217,7 +234,7 @@ const AdminHeader = ({ onToggleSidebar, sidebarCollapsed }) => {
             <span className="hidden md:block text-sm font-medium">
               {user?.email || 'المدير'}
             </span>
-          </button>
+          </Button>
 
           {showUserMenu && (
             <div className="absolute right-0 top-12 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
@@ -237,13 +254,14 @@ const AdminHeader = ({ onToggleSidebar, sidebarCollapsed }) => {
                   الإعدادات
                 </Link>
                 <hr className="my-2 border-gray-200 dark:border-gray-700" />
-                <button
+                <Button
+                  variant="ghost"
                   onClick={handleLogout}
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left text-red-600 dark:text-red-400"
+                  className="flex items-center gap-2 px-3 py-2 text-sm w-full justify-start text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                 >
                   <LogOut size={16} />
                   تسجيل الخروج
-                </button>
+                </Button>
               </div>
             </div>
           )}

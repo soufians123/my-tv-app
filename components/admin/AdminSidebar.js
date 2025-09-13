@@ -25,6 +25,7 @@ import {
   Globe,
   Send
 } from 'lucide-react';
+import { Button, Badge } from '../ui/unified-components';
 
 const AdminSidebar = ({ collapsed, onToggle }) => {
   const router = useRouter();
@@ -193,7 +194,8 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
     if (hasSubmenu) {
       return (
         <div key={item.id} className="mb-1">
-          <button
+          <Button
+            variant="ghost"
             onClick={() => toggleSubmenu(item.id)}
             className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group ${
               isMenuActive
@@ -217,14 +219,14 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
             {!collapsed && (
               <div className="flex items-center gap-2">
                 {item.badge && (
-                  <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full">
+                  <Badge variant="secondary" className="text-xs">
                     {item.badge}
-                  </span>
+                  </Badge>
                 )}
                 {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
               </div>
             )}
-          </button>
+          </Button>
           
           {!collapsed && isExpanded && (
             <div className="mt-1 ml-6 space-y-1">
@@ -243,9 +245,9 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
                     <SubIcon size={16} />
                     <span>{subItem.title}</span>
                     {subItem.badge && (
-                      <span className="ml-auto px-1.5 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded">
+                      <Badge variant="success" className="ml-auto text-xs">
                         {subItem.badge}
-                      </span>
+                      </Badge>
                     )}
                   </Link>
                 );

@@ -6,6 +6,7 @@ import Layout from '../../components/Layout'
 import { FavoritesDisplay, useFavorites } from '../../components/FavoritesSystem'
 import { Heart, Download, Upload, Trash2, RefreshCw, BarChart3, Calendar, User } from 'lucide-react'
 import { useToast } from '../../components/ToastSystem'
+import LazyImage from '../../components/LazyImage'
 
 const FavoritesPage = () => {
   const router = useRouter()
@@ -190,10 +191,14 @@ const FavoritesPage = () => {
                             legacyBehavior>
                             <div className="flex items-center space-x-3 space-x-reverse">
                               {channel.logo_url && (
-                  <img src={channel.logo_url} alt={channel.name} className="w-10 h-10 rounded-full" />
+                                <LazyImage 
+                                  src={channel.logo_url} 
+                                  alt={channel.name_ar || channel.name} 
+                                  className="w-10 h-10 rounded-full" 
+                                />
                               )}
                               <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-gray-900 truncate">{channel.name}</h4>
+                                <h4 className="font-medium text-gray-900 truncate">{channel.name_ar || channel.name}</h4>
                                 <p className="text-sm text-gray-600 truncate">{channel.category}</p>
                               </div>
                             </div>

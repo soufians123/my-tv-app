@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { Heart, Star, Trash2, Search, Filter, SortAsc } from 'lucide-react'
+import { Button, Card, Badge } from './ui/unified-components'
 
 // Create Favorites Context
 const FavoritesContext = createContext()

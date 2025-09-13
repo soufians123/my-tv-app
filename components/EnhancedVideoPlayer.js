@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import Hls from 'hls.js'
 import {
   Play,
@@ -25,12 +25,15 @@ import {
   BookOpen,
   Star,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  Zap,
+  Monitor
 } from 'lucide-react'
 import { useFavorites } from './FavoritesSystem'
 import { useToast } from './ToastSystem'
+import LazyImage from './LazyImage'
 
-const EnhancedVideoPlayer = ({ 
+const EnhancedVideoPlayer = React.memo(({ 
   channels = [],
   categories = [],
   selectedChannel = null,
@@ -55,16 +58,153 @@ const EnhancedVideoPlayer = ({
   const [playbackRate, setPlaybackRate] = useState(1)
   const [quality, setQuality] = useState('auto')
   const [showSettings, setShowSettings] = useState(false)
+  const [availableQualities, setAvailableQualities] = useState([])
+  const [showAdvancedControls, setShowAdvancedControls] = useState(false)
+  
+  // ميزات VLC المتقدمة
+  const [audioTracks, setAudioTracks] = useState([])
+  const [selectedAudioTrack, setSelectedAudioTrack] = useState(0)
+  const [subtitleTracks, setSubtitleTracks] = useState([])
+  const [selectedSubtitleTrack, setSelectedSubtitleTrack] = useState(-1)
   const [isConnected, setIsConnected] = useState(true)
   const [error, setError] = useState(null)
   
   // Channel list states
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [filteredChannels, setFilteredChannels] = useState(channels)
   const [manifestErrorCount, setManifestErrorCount] = useState(0)
+  
+  // تحسينات VLC-like للتحميل المسبق والتخزين المؤقت
+  const [preloadedChannels, setPreloadedChannels] = useState(new Map())
+  const [channelCache, setChannelCache] = useState(new Map())
+  const preloadTimeoutRef = useRef(null)
+  const retryTimeoutRef = useRef(null)
+
+  // Memoized filtered channels for better performance
+  const filteredChannels = useMemo(() => {
+    let filtered = channels
+    
+    if (searchTerm) {
+      filtered = filtered.filter(channel => 
+        (channel.name && channel.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (channel.name_ar && channel.name_ar.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (channel.country && channel.country.toLowerCase().includes(searchTerm.toLowerCase()))
+      )
+    }
+    
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(channel => channel.category === selectedCategory)
+    }
+    
+    return filtered
+  }, [channels, searchTerm, selectedCategory])
 
   let controlsTimeout = useRef(null)
+  
+  // Performance optimized preloading with memory management (VLC-like)
+  const preloadAdjacentChannels = useCallback(() => {
+    if (!selectedChannel || !filteredChannels.length) return
+    
+    const currentIndex = filteredChannels.findIndex(ch => 
+      (ch.id && ch.id === selectedChannel.id) || ch.name === selectedChannel.name
+    )
+    
+    if (currentIndex === -1) return
+    
+    // Memory management: Limit cache size
+    const MAX_CACHE_SIZE = 8
+    if (channelCache.size >= MAX_CACHE_SIZE) {
+      // Remove oldest entries
+      const entries = Array.from(channelCache.entries())
+      const oldestEntries = entries
+        .sort(([,a], [,b]) => a.timestamp - b.timestamp)
+        .slice(0, channelCache.size - MAX_CACHE_SIZE + 2)
+      
+      oldestEntries.forEach(([key, cachedData]) => {
+        if (cachedData.hlsInstance && !cachedData.hlsInstance.destroyed) {
+          try {
+            cachedData.hlsInstance.destroy()
+          } catch (e) {
+            console.warn(`Error destroying cached instance for ${key}:`, e)
+          }
+        }
+        setChannelCache(prev => {
+          const newCache = new Map(prev)
+          newCache.delete(key)
+          return newCache
+        })
+      })
+    }
+    
+    // تحديد القنوات المجاورة للتحميل المسبق
+    const adjacentIndices = [
+      currentIndex - 1, // القناة السابقة
+      currentIndex + 1  // القناة التالية
+    ].filter(index => index >= 0 && index < filteredChannels.length)
+    
+    adjacentIndices.forEach((index, priority) => {
+      const channel = filteredChannels[index]
+      const streamUrl = channel.stream_url || channel.stream
+      const cacheKey = `${channel.id || channel.name}_${streamUrl}`
+      
+      // تجنب التحميل المسبق إذا كانت القناة محملة مسبقاً
+      if (channelCache.has(cacheKey) || !streamUrl || !streamUrl.includes('.m3u8')) {
+        return
+      }
+      
+      // Adaptive delay based on network conditions and priority
+      const networkDelay = navigator.connection?.effectiveType === '4g' ? 1000 : 3000
+      const priorityDelay = priority * 1000
+      const adaptiveDelay = networkDelay + priorityDelay
+      
+      // تأخير التحميل المسبق لتجنب التحميل الزائد
+      setTimeout(() => {
+        // Double-check cache size before creating new instance
+        if (channelCache.size >= MAX_CACHE_SIZE) return
+        
+        if (Hls.isSupported()) {
+          const preloadHls = new Hls({
+            enableWorker: true,
+            lowLatencyMode: false, // تقليل الأولوية للتحميل المسبق
+            maxBufferLength: 3, // تخزين مؤقت أقل للتحميل المسبق
+            maxMaxBufferLength: 15,
+            manifestLoadingTimeOut: 2000,
+            fragLoadingTimeOut: 3000,
+            autoStartLoad: false, // عدم البدء التلقائي
+            maxLoadingDelay: 1000
+          })
+          
+          preloadHls.loadSource(streamUrl)
+          
+          preloadHls.on(Hls.Events.MANIFEST_PARSED, () => {
+            console.log('تم التحميل المسبق للقناة:', channel.name)
+            setChannelCache(prev => {
+              const newCache = new Map(prev)
+              newCache.set(cacheKey, {
+                hlsInstance: preloadHls,
+                timestamp: Date.now(),
+                channel: channel,
+                preloaded: true,
+                priority: priority
+              })
+              return newCache
+            })
+          })
+          
+          preloadHls.on(Hls.Events.ERROR, (event, data) => {
+            if (data.fatal) {
+              console.warn('فشل التحميل المسبق للقناة:', channel.name)
+              try {
+                preloadHls.destroy()
+              } catch (e) {
+                console.warn('Error destroying preload HLS:', e)
+              }
+            }
+          })
+        }
+      }, adaptiveDelay)
+    })
+  }, [selectedChannel, filteredChannels, channelCache])
 
   // Get channel icon based on category
   const getChannelIcon = (category, size = 'w-8 h-8') => {
@@ -111,28 +251,38 @@ const EnhancedVideoPlayer = ({
     }
   }
 
-  // Filter channels based on search and category
-  useEffect(() => {
-    let filtered = channels
-    
-    if (searchTerm) {
-      filtered = filtered.filter(channel => 
-        (channel.name && channel.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (channel.country && channel.country.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (channel.channel_categories?.name && channel.channel_categories.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (channel.channel_categories?.name_ar && channel.channel_categories.name_ar.toLowerCase().includes(searchTerm.toLowerCase()))
-      )
+  // Memoized functions for better performance
+  const handleChannelSelect = useCallback((channel) => {
+    if (onChannelSelect) {
+      onChannelSelect(channel)
     }
-    
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(channel => {
-        const categoryName = channel.channel_categories?.name || channel.channel_categories?.name_ar
-        return categoryName === selectedCategory
+  }, [onChannelSelect, toast])
+
+  const togglePlayPause = useCallback(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    if (isPlaying) {
+      video.pause()
+    } else {
+      video.play().catch(error => {
+        console.log('Play failed:', error)
       })
     }
-    
-    setFilteredChannels(filtered)
-  }, [channels, searchTerm, selectedCategory])
+  }, [isPlaying])
+
+  const toggleMute = useCallback(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    if (isMuted) {
+      video.muted = false
+      setIsMuted(false)
+    } else {
+      video.muted = true
+      setIsMuted(true)
+    }
+  }, [isMuted])
 
   // Video player event handlers
   useEffect(() => {
@@ -154,9 +304,7 @@ const EnhancedVideoPlayer = ({
     const handleCanPlay = () => setIsBuffering(false)
     
     const handleError = (e) => {
-      setError('فشل في تحميل القناة')
       setIsLoading(false)
-      toast.error(`خطأ في تشغيل قناة ${selectedChannel.name}`)
     }
 
     const handleFullscreenChange = () => {
@@ -173,10 +321,12 @@ const EnhancedVideoPlayer = ({
           togglePlay()
           break
         case 'm':
+        case 'M':
           e.preventDefault()
           toggleMute()
           break
         case 'f':
+        case 'F':
           e.preventDefault()
           toggleFullscreen()
           break
@@ -195,6 +345,29 @@ const EnhancedVideoPlayer = ({
         case 'ArrowRight':
           e.preventDefault()
           skipTime(10)
+          break
+        case '+':
+        case '=':
+          e.preventDefault()
+          const currentRateIndex = playbackRates.indexOf(playbackRate)
+          if (currentRateIndex < playbackRates.length - 1) {
+            changePlaybackRate(playbackRates[currentRateIndex + 1])
+          }
+          break
+        case '-':
+          e.preventDefault()
+          const currentRateIndexDown = playbackRates.indexOf(playbackRate)
+          if (currentRateIndexDown > 0) {
+            changePlaybackRate(playbackRates[currentRateIndexDown - 1])
+          }
+          break
+        case '1':
+          e.preventDefault()
+          changePlaybackRate(1)
+          break
+        case '0':
+          e.preventDefault()
+          changeVolume(isMuted ? 0.5 : 0)
           break
         default:
           break
@@ -259,6 +432,19 @@ const EnhancedVideoPlayer = ({
         }
       }
       
+      // التحقق من وجود القناة في التخزين المؤقت
+      const cacheKey = `${selectedChannel.id || selectedChannel.name}_${streamUrl}`
+      if (channelCache.has(cacheKey)) {
+        console.log('استخدام القناة من التخزين المؤقت:', selectedChannel.name)
+        const cachedData = channelCache.get(cacheKey)
+        if (cachedData.hlsInstance && !cachedData.hlsInstance.destroyed) {
+          window.hlsInstance = cachedData.hlsInstance
+          window.hlsInstance.attachMedia(video)
+          setIsLoading(false)
+          return
+        }
+      }
+      
       // Reset video source
       video.src = ''
       video.load()
@@ -267,23 +453,38 @@ const EnhancedVideoPlayer = ({
       if (streamUrl && streamUrl.includes('.m3u8')) {
         if (Hls.isSupported()) {
           const hls = new Hls({
-            enableWorker: false,
+            // تحسينات VLC-like للأداء السريع
+            enableWorker: true, // تفعيل Web Workers للأداء الأفضل
             lowLatencyMode: true,
-            backBufferLength: 90,
-            maxLoadingDelay: 4,
-            maxBufferLength: 30,
-            maxMaxBufferLength: 600,
-            manifestLoadingTimeOut: 10000,
-            manifestLoadingMaxRetry: 3,
-            manifestLoadingRetryDelay: 1000,
-            levelLoadingTimeOut: 10000,
-            levelLoadingMaxRetry: 4,
-            fragLoadingTimeOut: 20000,
-            fragLoadingMaxRetry: 6,
+            backBufferLength: 30, // تقليل التخزين الخلفي لسرعة أكبر
+            maxLoadingDelay: 2, // تقليل تأخير التحميل
+            maxBufferLength: 15, // تقليل حجم التخزين المؤقت للاستجابة السريعة
+            maxMaxBufferLength: 120, // حد أقصى أقل للذاكرة
+            manifestLoadingTimeOut: 5000, // تقليل timeout للاستجابة السريعة
+            manifestLoadingMaxRetry: 2,
+            manifestLoadingRetryDelay: 500,
+            levelLoadingTimeOut: 5000,
+            levelLoadingMaxRetry: 3,
+            fragLoadingTimeOut: 8000, // تقليل timeout للأجزاء
+            fragLoadingMaxRetry: 4,
+            // تحسينات إضافية للسرعة
+            startLevel: -1, // البدء بأفضل جودة متاحة
+            capLevelToPlayerSize: true, // تحسين الجودة حسب حجم المشغل
+            maxBufferHole: 0.5, // تقليل الثقوب في التخزين المؤقت
+            maxSeekHole: 2,
+            seekHoleNudgeDuration: 0.1,
+            stalledInBufferedNudgeSize: 0.1,
+            maxFragLookUpTolerance: 0.25,
+            liveSyncDurationCount: 3, // تحسين البث المباشر
+            liveMaxLatencyDurationCount: 10,
+            liveDurationInfinity: true,
+            // تحسين الشبكة
+            progressive: true,
             xhrSetup: function(xhr, url) {
-              // إعداد CORS والرؤوس المطلوبة
               xhr.withCredentials = false
+              xhr.timeout = 8000 // timeout أقل للاستجابة السريعة
               xhr.setRequestHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+              xhr.setRequestHeader('Cache-Control', 'no-cache')
             }
           })
           
@@ -300,7 +501,6 @@ const EnhancedVideoPlayer = ({
           if (!isValidUrl(streamUrl)) {
             setError('رابط القناة غير صحيح')
             setIsLoading(false)
-            toast.error(`رابط قناة ${selectedChannel.name} غير صحيح`)
             return
           }
           
@@ -312,6 +512,61 @@ const EnhancedVideoPlayer = ({
             setError(null)
             retryCount = 0 // إعادة تعيين عداد المحاولات عند النجاح
             setManifestErrorCount(0) // إعادة تعيين عداد أخطاء manifest عند النجاح
+            
+            // استخراج الجودات المتاحة (VLC-like)
+            const levels = hls.levels
+            if (levels && levels.length > 0) {
+              const qualities = levels.map((level, index) => ({
+                index,
+                height: level.height,
+                width: level.width,
+                bitrate: level.bitrate,
+                label: level.height ? `${level.height}p` : `${Math.round(level.bitrate / 1000)}k`
+              }))
+              qualities.unshift({ index: -1, label: 'تلقائي', height: 'auto' })
+              setAvailableQualities(qualities)
+              console.log('الجودات المتاحة:', qualities)
+            }
+            
+            // استخراج المسارات الصوتية
+            const audioTracks = hls.audioTracks
+            if (audioTracks && audioTracks.length > 0) {
+              setAudioTracks(audioTracks.map((track, index) => ({
+                index,
+                name: track.name || `مسار صوتي ${index + 1}`,
+                language: track.lang || 'غير محدد'
+              })))
+            }
+            
+            // حفظ القناة في التخزين المؤقت
+            const cacheKey = `${selectedChannel.id || selectedChannel.name}_${streamUrl}`
+            setChannelCache(prev => {
+              const newCache = new Map(prev)
+              newCache.set(cacheKey, {
+                hlsInstance: hls,
+                timestamp: Date.now(),
+                channel: selectedChannel
+              })
+              // الاحتفاظ بآخر 5 قنوات فقط لتوفير الذاكرة
+              if (newCache.size > 5) {
+                const oldestKey = Array.from(newCache.keys())[0]
+                const oldData = newCache.get(oldestKey)
+                if (oldData.hlsInstance && !oldData.hlsInstance.destroyed) {
+                  try {
+                    oldData.hlsInstance.destroy()
+                  } catch (e) {
+                    console.warn('Error destroying old HLS instance:', e)
+                  }
+                }
+                newCache.delete(oldestKey)
+              }
+              return newCache
+            })
+            
+            // Performance optimized preloading with priority delay
+            setTimeout(() => {
+              preloadAdjacentChannels()
+            }, 1500) // Delay to prioritize main channel loading
           })
           
           // معالجة انقطاع الاتصال وإعادة الاتصال
@@ -340,7 +595,6 @@ const EnhancedVideoPlayer = ({
               console.error('Too many fragment errors, stopping playback')
               setError('مشكلة في جودة البث - جرب قناة أخرى')
               setIsLoading(false)
-              toast.error(`مشكلة في جودة بث قناة ${selectedChannel.name}`)
             }
           })
           
@@ -412,9 +666,7 @@ const EnhancedVideoPlayer = ({
                         setManifestErrorCount(prev => prev + 1)
                       } else {
                         console.error('فشل نهائي في تحميل manifest بعد عدة محاولات')
-                        setError('فشل في الاتصال بخادم القناة')
                         setIsLoading(false)
-                        toast.error(`فشل في الاتصال بقناة ${selectedChannel.name}`)
                       }
                     }, retryDelay)
                   } else if (data.details === 'fragLoadError' || data.details === 'fragParsingError') {
@@ -438,7 +690,6 @@ const EnhancedVideoPlayer = ({
                       } else {
                         setError('انقطاع متكرر في الاتصال - تحقق من الإنترنت')
                         setIsLoading(false)
-                        toast.error(`انقطاع الاتصال مع قناة ${selectedChannel.name}`)
                       }
                     } else if (isFailedError) {
                       console.log('خطأ ERR_FAILED - فشل في الخادم، إعادة محاولة مع تأخير')
@@ -453,7 +704,6 @@ const EnhancedVideoPlayer = ({
                       } else {
                         setError('خادم القناة غير متاح حالياً')
                         setIsLoading(false)
-                        toast.error(`خادم قناة ${selectedChannel.name} غير متاح`)
                       }
                     } else if (retryCount < maxRetries) {
                       retryCount++
@@ -466,7 +716,6 @@ const EnhancedVideoPlayer = ({
                     } else {
                       setError('خطأ في تحميل أجزاء الفيديو')
                       setIsLoading(false)
-                      toast.error(`مشكلة في تحميل فيديو قناة ${selectedChannel.name}`)
                     }
                   } else if (retryCount < maxRetries) {
                     retryCount++
@@ -479,7 +728,6 @@ const EnhancedVideoPlayer = ({
                   } else {
                     setError('خطأ في الشبكة - القناة غير متاحة حالياً')
                     setIsLoading(false)
-                    toast.error(`قناة ${selectedChannel.name} غير متاحة حالياً`)
                   }
                   break
                 case Hls.ErrorTypes.MEDIA_ERROR:
@@ -490,13 +738,11 @@ const EnhancedVideoPlayer = ({
                   } else {
                     setError('خطأ في الوسائط - رابط القناة تالف')
                     setIsLoading(false)
-                    toast.error(`رابط قناة ${selectedChannel.name} تالف`)
                   }
                   break
                 default:
                   setError('خطأ في تشغيل القناة - جرب قناة أخرى')
                   setIsLoading(false)
-                  toast.error(`خطأ في تشغيل قناة ${selectedChannel.name}`)
                   break
               }
             } else {
@@ -552,44 +798,86 @@ const EnhancedVideoPlayer = ({
             }
           })
           
-          // معالجة انقطاع الاتصال وإعادة الاتصال التلقائي
+          // نظام إعادة الاتصال التلقائي المتقدم (VLC-like)
           let reconnectAttempts = 0
-          const maxReconnectAttempts = 5
+          const maxReconnectAttempts = 8 // زيادة عدد المحاولات
+          let reconnectTimer = null
+          let healthCheckInterval = null
           
           const handleConnectionLoss = () => {
             if (reconnectAttempts < maxReconnectAttempts) {
               reconnectAttempts++
-              console.log(`محاولة إعادة الاتصال ${reconnectAttempts}/${maxReconnectAttempts}`)
+              const delay = Math.min(1000 * Math.pow(1.5, reconnectAttempts), 15000) // تأخير تدريجي محسن
+              console.log(`محاولة إعادة الاتصال ${reconnectAttempts}/${maxReconnectAttempts} خلال ${delay}ms`)
               
-              setTimeout(() => {
+              setError(`إعادة الاتصال... (${reconnectAttempts}/${maxReconnectAttempts})`)
+              
+              reconnectTimer = setTimeout(() => {
                 if (hls && !hls.destroyed) {
                   try {
-                    hls.startLoad()
-                    console.log('تم بدء إعادة تحميل البث')
+                    // إعادة تحميل المصدر بالكامل للاتصالات المنقطعة
+                    hls.stopLoad()
+                    hls.detachMedia()
+                    hls.loadSource(streamUrl)
+                    hls.attachMedia(video)
+                    console.log('تم بدء إعادة تحميل البث الكامل')
                   } catch (error) {
                     console.error('فشل في إعادة تحميل البث:', error)
+                    handleConnectionLoss() // محاولة أخرى
                   }
                 }
-              }, 2000 * reconnectAttempts) // تأخير متزايد
+              }, delay)
             } else {
               console.log('تم الوصول للحد الأقصى من محاولات إعادة الاتصال')
-              toast.error('انقطع الاتصال - يرجى إعادة تحديد القناة')
+              setError('فشل الاتصال نهائياً - تحقق من الإنترنت')
+              setIsLoading(false)
             }
           }
           
-          // مراقبة حالة الشبكة
-          window.addEventListener('online', () => {
+          // مراقبة صحة الاتصال
+          const startHealthCheck = () => {
+            healthCheckInterval = setInterval(() => {
+              if (hls && !hls.destroyed && video.readyState === 0 && !isLoading) {
+                console.warn('اكتشاف مشكلة في الاتصال - بدء إعادة الاتصال')
+                handleConnectionLoss()
+              }
+            }, 10000) // فحص كل 10 ثوان
+          }
+          
+          // مراقبة حالة الشبكة المحسنة
+          const handleOnline = () => {
             console.log('تم استعادة الاتصال بالإنترنت')
             reconnectAttempts = 0
+            setError(null)
             if (hls && !hls.destroyed) {
               hls.startLoad()
             }
-          })
+            startHealthCheck()
+          }
           
-          window.addEventListener('offline', () => {
+          const handleOffline = () => {
             console.log('انقطع الاتصال بالإنترنت')
-            toast.warning('انقطع الاتصال بالإنترنت')
-          })
+            setError('لا يوجد اتصال بالإنترنت')
+            if (healthCheckInterval) {
+              clearInterval(healthCheckInterval)
+            }
+          }
+          
+          window.addEventListener('online', handleOnline)
+          window.addEventListener('offline', handleOffline)
+          
+          // بدء مراقبة الصحة
+          startHealthCheck()
+          
+          // تنظيف المؤقتات عند التدمير
+          const originalDestroy = hls.destroy.bind(hls)
+          hls.destroy = () => {
+            if (reconnectTimer) clearTimeout(reconnectTimer)
+            if (healthCheckInterval) clearInterval(healthCheckInterval)
+            window.removeEventListener('online', handleOnline)
+            window.removeEventListener('offline', handleOffline)
+            originalDestroy()
+          }
           
           window.hlsInstance = hls
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -608,11 +896,64 @@ const EnhancedVideoPlayer = ({
       }
     }
     
-    // Cleanup on unmount
+    // Performance optimized cleanup on unmount
     return () => {
+      // Destroy main HLS instance with error handling
       if (window.hlsInstance) {
-        window.hlsInstance.destroy()
-        window.hlsInstance = null
+        try {
+          window.hlsInstance.destroy()
+        } catch (e) {
+          console.warn('Error destroying main HLS instance:', e)
+        } finally {
+          window.hlsInstance = null
+        }
+      }
+      
+      // Optimized cache cleanup with batch processing
+      const cacheEntries = Array.from(channelCache.entries())
+      const batchSize = 5
+      
+      for (let i = 0; i < cacheEntries.length; i += batchSize) {
+        const batch = cacheEntries.slice(i, i + batchSize)
+        
+        // Process batch asynchronously to prevent blocking
+        setTimeout(() => {
+          batch.forEach(([key, cachedData]) => {
+            if (cachedData.hlsInstance && !cachedData.hlsInstance.destroyed) {
+              try {
+                cachedData.hlsInstance.destroy()
+              } catch (e) {
+                console.warn(`Error destroying cached HLS instance for ${key}:`, e)
+              }
+            }
+          })
+        }, i * 10) // Stagger cleanup to prevent performance spikes
+      }
+      
+      // Clear cache immediately
+      setChannelCache(new Map())
+      
+      // Enhanced timeout cleanup
+      const timeouts = [
+        preloadTimeoutRef.current,
+        retryTimeoutRef?.current
+      ]
+      
+      timeouts.forEach(timeout => {
+        if (timeout) {
+          clearTimeout(timeout)
+        }
+      })
+      
+      // Clear refs
+      preloadTimeoutRef.current = null
+      if (retryTimeoutRef) {
+        retryTimeoutRef.current = null
+      }
+      
+      // Memory optimization hint
+      if (window.gc && typeof window.gc === 'function') {
+        setTimeout(() => window.gc(), 1000)
       }
     }
   }, [selectedChannel, toast])
@@ -625,29 +966,36 @@ const EnhancedVideoPlayer = ({
       video.pause()
     } else {
       video.play().catch(err => {
-        setError('فشل في تشغيل القناة')
-        toast.error(`خطأ في تشغيل قناة ${selectedChannel.name}`)
+        console.log('Play failed:', err)
       })
     }
   }
 
-  const toggleMute = () => {
-    const video = videoRef.current
-    if (!video) return
 
-    video.muted = !isMuted
-    setIsMuted(!isMuted)
-  }
 
   const handleVolumeChange = (e) => {
     const newVolume = parseFloat(e.target.value)
+    changeVolume(newVolume)
+  }
+
+  // تخطي الوقت (VLC-like)
+  const skipTime = useCallback((seconds) => {
+    const video = videoRef.current
+    if (!video) return
+    
+    video.currentTime = Math.max(0, Math.min(video.duration || 0, video.currentTime + seconds))
+  }, [])
+  
+  // تغيير مستوى الصوت (VLC-like)
+  const changeVolume = useCallback((newVolume) => {
     const video = videoRef.current
     if (!video) return
 
-    setVolume(newVolume)
-    video.volume = newVolume
-    setIsMuted(newVolume === 0)
-  }
+    const clampedVolume = Math.max(0, Math.min(1, newVolume))
+    setVolume(clampedVolume)
+    video.volume = clampedVolume
+    setIsMuted(clampedVolume === 0)
+  }, [])
 
   const toggleFullscreen = () => {
     const container = videoRef.current?.parentElement
@@ -662,15 +1010,183 @@ const EnhancedVideoPlayer = ({
     }
   }
 
-  const changePlaybackRate = (rate) => {
+  // تغيير معدل التشغيل (VLC-like)
+  const changePlaybackRate = useCallback((rate) => {
     const video = videoRef.current
     if (!video) return
 
     video.playbackRate = rate
     setPlaybackRate(rate)
     setShowSettings(false)
-  }
+    console.log(`تم تغيير السرعة إلى: ${rate}x`)
+  }, [])
 
+  // تحميل مسبق لقناة واحدة (VLC-like)
+  const preloadStream = useCallback((channel) => {
+    if (!channel) return
+    
+    const streamUrl = channel.stream_url || channel.stream
+    const cacheKey = `${channel.id || channel.name}_${streamUrl}`
+    
+    // تجنب التحميل المسبق إذا كانت القناة محملة مسبقاً
+    if (preloadedStreams.current[cacheKey] || !streamUrl || !streamUrl.includes('.m3u8')) {
+      return
+    }
+    
+    if (Hls.isSupported()) {
+      const preloadHls = new Hls({
+        enableWorker: true,
+        lowLatencyMode: false,
+        maxBufferLength: 3,
+        maxMaxBufferLength: 15,
+        manifestLoadingTimeOut: 2000,
+        fragLoadingTimeOut: 3000,
+        autoStartLoad: false
+      })
+      
+      preloadHls.loadSource(streamUrl)
+      
+      preloadHls.on(Hls.Events.MANIFEST_PARSED, () => {
+        console.log('تم التحميل المسبق للقناة:', channel.name)
+        preloadedStreams.current[cacheKey] = {
+          hlsInstance: preloadHls,
+          timestamp: Date.now(),
+          channel: channel,
+          preloaded: true
+        }
+      })
+      
+      preloadHls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          console.warn('فشل التحميل المسبق للقناة:', channel.name)
+          try {
+            preloadHls.destroy()
+          } catch (e) {
+            console.warn('Error destroying preload HLS:', e)
+          }
+        }
+      })
+    }
+  }, [])
+
+  // تحسين التنقل السريع بين القنوات مع التخزين المؤقت (VLC-like)
+  const navigateChannel = useCallback((direction) => {
+    if (!selectedChannel || filteredChannels.length === 0) return
+    
+    const currentIndex = filteredChannels.findIndex(ch => 
+      (ch.id && ch.id === selectedChannel.id) || ch.name === selectedChannel.name
+    )
+    let newIndex
+    
+    if (direction === 'up') {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : filteredChannels.length - 1
+    } else {
+      newIndex = currentIndex < filteredChannels.length - 1 ? currentIndex + 1 : 0
+    }
+    
+    const newChannel = filteredChannels[newIndex]
+    
+    // التحقق من وجود القناة في التخزين المؤقت للتبديل السريع
+    const streamUrl = newChannel.stream_url || newChannel.stream
+    const cacheKey = `${newChannel.id || newChannel.name}_${streamUrl}`
+    
+    if (preloadedStreams.current[cacheKey]) {
+      console.log('استخدام القناة من التخزين المؤقت:', newChannel.name)
+    }
+    
+    onChannelSelect(newChannel)
+    
+    // إضافة القناة الجديدة للتخزين المؤقت إذا لم تكن موجودة
+    if (!preloadedStreams.current[cacheKey]) {
+      preloadStream(newChannel)
+    }
+  }, [selectedChannel, filteredChannels, onChannelSelect, preloadStream])
+  
+  // اختصارات لوحة المفاتيح (VLC-like)
+  const handleKeyPress = useCallback((e) => {
+    if (!videoRef.current) return
+    
+    switch (e.key) {
+      case ' ':
+        e.preventDefault()
+        togglePlay()
+        break
+      case 'ArrowRight':
+        e.preventDefault()
+        skipTime(10)
+        break
+      case 'ArrowLeft':
+        e.preventDefault()
+        skipTime(-10)
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        navigateChannel('up')
+        break
+      case 'ArrowDown':
+        e.preventDefault()
+        navigateChannel('down')
+        break
+      case 'f':
+      case 'F':
+        e.preventDefault()
+        toggleFullscreen()
+        break
+      case '+':
+      case '=':
+        e.preventDefault()
+        const currentRateIndex = playbackRates.indexOf(playbackRate)
+        if (currentRateIndex < playbackRates.length - 1) {
+          changePlaybackRate(playbackRates[currentRateIndex + 1])
+        }
+        break
+      case '-':
+        e.preventDefault()
+        const currentRateIndexDown = playbackRates.indexOf(playbackRate)
+        if (currentRateIndexDown > 0) {
+          changePlaybackRate(playbackRates[currentRateIndexDown - 1])
+        }
+        break
+      case 'm':
+      case 'M':
+        e.preventDefault()
+        setIsMuted(!isMuted)
+        if (videoRef.current) {
+          videoRef.current.muted = !isMuted
+        }
+        break
+    }
+  }, [volume, playbackRate, isMuted, togglePlay, skipTime, changeVolume, toggleFullscreen, changePlaybackRate, navigateChannel])
+  
+  // تغيير الجودة (VLC-like)
+  const changeQuality = useCallback((qualityIndex) => {
+    if (hlsRef.current && hlsRef.current.levels) {
+      if (qualityIndex === -1) {
+        // تلقائي
+        hlsRef.current.currentLevel = -1
+        setQuality('auto')
+        console.log('تم تعيين الجودة على تلقائي')
+      } else {
+        hlsRef.current.currentLevel = qualityIndex
+        const selectedLevel = hlsRef.current.levels[qualityIndex]
+        setQuality(selectedLevel.height ? `${selectedLevel.height}p` : 'مخصص')
+        console.log(`تم تغيير الجودة إلى: ${selectedLevel.height}p`)
+      }
+    }
+  }, [])
+  
+  // تغيير المسار الصوتي
+  const changeAudioTrack = useCallback((trackIndex) => {
+    if (hlsRef.current && hlsRef.current.audioTracks) {
+      hlsRef.current.audioTrack = trackIndex
+      setSelectedAudioTrack(trackIndex)
+      console.log(`تم تغيير المسار الصوتي إلى: ${trackIndex}`)
+    }
+  }, [])
+  
+  // سرعات التشغيل المتاحة (VLC-like)
+  const playbackRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3]
+  
   const formatTime = (time) => {
     if (isNaN(time)) return '00:00'
     
@@ -684,48 +1200,28 @@ const EnhancedVideoPlayer = ({
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
   }
 
-  const handleChannelSelect = (channel) => {
-    onChannelSelect(channel)
-    toast.success(`تم تشغيل قناة ${channel.name}`)
-  }
-
-  const navigateChannel = (direction) => {
-    if (!selectedChannel || filteredChannels.length === 0) return
-    
-    const currentIndex = filteredChannels.findIndex(ch => ch.id === selectedChannel.id)
-    let newIndex
-    
-    if (direction === 'up') {
-      newIndex = currentIndex > 0 ? currentIndex - 1 : filteredChannels.length - 1
-    } else {
-      newIndex = currentIndex < filteredChannels.length - 1 ? currentIndex + 1 : 0
-    }
-    
-    const newChannel = filteredChannels[newIndex]
-    handleChannelSelect(newChannel)
-  }
-
-  const skipTime = (seconds) => {
-    const video = videoRef.current
-    if (!video || !selectedChannel) return
-    
-    video.currentTime = Math.max(0, Math.min(video.currentTime + seconds, video.duration || 0))
-  }
 
   const toggleFavorite = (channel) => {
     if (isFavorite('channels', channel.id)) {
       removeFromFavorites('channels', channel.id)
-      toast.info(`تم إزالة ${channel.name} من المفضلة`)
+      toast.info(`تم إزالة ${channel.name_ar || channel.name} من المفضلة`)
     } else {
       addToFavorites('channels', channel)
-      toast.success(`تم إضافة ${channel.name} للمفضلة`)
+      toast.success(`تم إضافة ${channel.name_ar || channel.name} للمفضلة`)
     }
   }
 
   // استخدام الفئات الممررة كخاصية أو إنشاؤها من القنوات كبديل
-  const availableCategories = categories.length > 0 
-    ? categories.map(cat => typeof cat === 'object' ? (cat.name || cat.name_ar || cat) : cat)
-    : [...new Set(channels.map(ch => ch.channel_categories?.name || ch.channel_categories?.name_ar).filter(Boolean))]
+  const availableCategories = useMemo(() => {
+    if (categories.length > 0) {
+      return categories.map(cat => typeof cat === 'object' ? (cat.name || cat.name_ar || cat) : cat)
+    }
+    // استخراج الفئات من القنوات مع تجنب التكرار
+    const channelCategories = channels
+      .map(ch => ch.category || ch.channel_categories?.name || ch.channel_categories?.name_ar)
+      .filter(Boolean)
+    return [...new Set(channelCategories)]
+  }, [categories, channels])
 
   // تسجيل للتتبع
   if (categories.length === 0) {
@@ -761,7 +1257,7 @@ const EnhancedVideoPlayer = ({
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                   <div className="flex flex-col items-center text-white">
                     <Loader className="w-8 h-8 animate-spin mb-2" />
-                    <span className="text-sm">جاري تحميل {selectedChannel.name}...</span>
+                    <span className="text-sm">جاري تحميل {selectedChannel.name_ar || selectedChannel.name}...</span>
                   </div>
                 </div>
               )}
@@ -850,7 +1346,7 @@ const EnhancedVideoPlayer = ({
                       {getChannelIcon(selectedChannel.category, 'w-3 h-3 sm:w-4 sm:h-4')}
                     </div>
                     <div className="text-white">
-                      <h3 className="font-medium text-sm sm:text-lg truncate max-w-20 sm:max-w-none">{selectedChannel.name}</h3>
+                      <h3 className="font-medium text-sm sm:text-lg truncate max-w-20 sm:max-w-none">{selectedChannel.name_ar || selectedChannel.name}</h3>
                       <p className="text-xs sm:text-sm text-gray-300 hidden sm:block">{selectedChannel.country}</p>
                     </div>
                     
@@ -928,7 +1424,7 @@ const EnhancedVideoPlayer = ({
 
                       {/* Channel Info */}
                       <div className="text-white text-xs sm:text-sm">
-                        <div className="font-medium truncate max-w-[120px] sm:max-w-[200px]">{selectedChannel.name}</div>
+                        <div className="font-medium truncate max-w-[120px] sm:max-w-[200px]">{selectedChannel.name_ar || selectedChannel.name}</div>
                         <div className="text-white/70 text-xs">{selectedChannel.country}</div>
                       </div>
                     </div>
@@ -956,20 +1452,92 @@ const EnhancedVideoPlayer = ({
                         </button>
                         
                         {showSettings && (
-                          <div className="absolute bottom-12 right-0 bg-black/90 backdrop-blur-sm rounded-lg p-3 min-w-[140px] sm:min-w-[150px] z-50">
-                            <div className="text-white text-sm space-y-2">
-                              <div className="font-medium border-b border-white/20 pb-2 mb-2">سرعة التشغيل</div>
-                              {[0.5, 0.75, 1, 1.25, 1.5, 2].map(rate => (
-                                <button
-                                  key={rate}
-                                  onClick={() => changePlaybackRate(rate)}
-                                  className={`block w-full text-right px-2 py-1 rounded hover:bg-white/20 transition-colors ${
-                                    playbackRate === rate ? 'text-blue-400' : ''
-                                  }`}
-                                >
-                                  {rate}x
-                                </button>
-                              ))}
+                          <div className="absolute bottom-12 right-0 bg-black/95 backdrop-blur-sm rounded-lg p-4 min-w-[200px] sm:min-w-[250px] z-50 max-h-80 overflow-y-auto">
+                            <div className="text-white text-sm space-y-4">
+                              
+                              {/* سرعة التشغيل */}
+                              <div>
+                                <div className="font-medium border-b border-white/20 pb-2 mb-2 flex items-center">
+                                  <Zap className="w-4 h-4 mr-2" />
+                                  سرعة التشغيل
+                                </div>
+                                <div className="grid grid-cols-3 gap-1">
+                                  {playbackRates.map(rate => (
+                                    <button
+                                      key={rate}
+                                      onClick={() => changePlaybackRate(rate)}
+                                      className={`px-2 py-1 rounded text-xs hover:bg-white/20 transition-colors ${
+                                        playbackRate === rate ? 'bg-blue-600 text-white' : 'bg-white/10'
+                                      }`}
+                                    >
+                                      {rate}x
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                              
+                              {/* جودة الفيديو */}
+                              {availableQualities.length > 0 && (
+                                <div>
+                                  <div className="font-medium border-b border-white/20 pb-2 mb-2 flex items-center">
+                                    <Monitor className="w-4 h-4 mr-2" />
+                                    جودة الفيديو
+                                  </div>
+                                  <div className="space-y-1">
+                                    {availableQualities.map(qualityOption => (
+                                      <button
+                                        key={qualityOption.index}
+                                        onClick={() => changeQuality(qualityOption.index)}
+                                        className={`block w-full text-right px-2 py-1 rounded hover:bg-white/20 transition-colors ${
+                                          (qualityOption.index === -1 && quality === 'auto') || 
+                                          (qualityOption.label === quality) ? 'text-blue-400 bg-blue-600/20' : ''
+                                        }`}
+                                      >
+                                        <div className="flex justify-between items-center">
+                                          <span>{qualityOption.label}</span>
+                                          {qualityOption.bitrate && (
+                                            <span className="text-xs text-gray-400">
+                                              {Math.round(qualityOption.bitrate / 1000)}k
+                                            </span>
+                                          )}
+                                        </div>
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* المسارات الصوتية */}
+                              {audioTracks.length > 1 && (
+                                <div>
+                                  <div className="font-medium border-b border-white/20 pb-2 mb-2 flex items-center">
+                                    <Volume2 className="w-4 h-4 mr-2" />
+                                    المسار الصوتي
+                                  </div>
+                                  <div className="space-y-1">
+                                    {audioTracks.map(track => (
+                                      <button
+                                        key={track.index}
+                                        onClick={() => changeAudioTrack(track.index)}
+                                        className={`block w-full text-right px-2 py-1 rounded hover:bg-white/20 transition-colors ${
+                                          selectedAudioTrack === track.index ? 'text-blue-400 bg-blue-600/20' : ''
+                                        }`}
+                                      >
+                                        <div className="flex justify-between items-center">
+                                          <span>{track.name}</span>
+                                          <span className="text-xs text-gray-400">{track.language}</span>
+                                        </div>
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* معلومات إضافية */}
+                              <div className="border-t border-white/20 pt-2 text-xs text-gray-400">
+                                <div>اختصارات: +/- للسرعة، F للشاشة الكاملة</div>
+                                <div>مسافة للتشغيل/الإيقاف، M لكتم الصوت</div>
+                              </div>
                             </div>
                           </div>
                         )}
@@ -994,13 +1562,13 @@ const EnhancedVideoPlayer = ({
           ) : (
             /* No Channel Selected */
             (<div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-900 to-black">
-              <div className="text-center text-white p-8">
-                <Tv className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                <h3 className="text-xl font-semibold mb-2">اختر قناة للمشاهدة</h3>
-                <p className="text-gray-400 mb-6">اختر قناة من القائمة أدناه لبدء المشاهدة</p>
+              <div className="text-center text-white p-4 sm:p-8">
+                <Tv className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-gray-400" />
+                <h3 className="text-lg sm:text-xl font-semibold mb-2">اختر قناة للمشاهدة</h3>
+                <p className="text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">اختر قناة من القائمة أدناه لبدء المشاهدة</p>
                 
-                {/* Keyboard Shortcuts Info */}
-                <div className="bg-black/50 backdrop-blur-sm rounded-lg p-4 max-w-md mx-auto">
+                {/* Keyboard Shortcuts Info - Hidden on mobile */}
+                <div className="hidden sm:block bg-black/50 backdrop-blur-sm rounded-lg p-4 max-w-md mx-auto">
                   <h4 className="text-sm font-medium mb-3 text-gray-300">اختصارات لوحة المفاتيح</h4>
                   <div className="grid grid-cols-2 gap-2 text-xs text-gray-400">
                     <div className="flex justify-between">
@@ -1056,15 +1624,15 @@ const EnhancedVideoPlayer = ({
               </div>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {/* Search Input */}
-              <div className="relative flex-1 sm:flex-initial">
+              <div className="relative">
                 <input
                   type="text"
                   placeholder="البحث في القنوات..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full sm:w-64 px-4 py-2 ltr:pr-10 rtl:pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full px-4 py-2.5 ltr:pr-10 rtl:pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white/70 backdrop-blur-sm"
                 />
                 <div className="absolute ltr:right-3 rtl:left-3 top-1/2 transform -translate-y-1/2">
                   <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1074,23 +1642,33 @@ const EnhancedVideoPlayer = ({
               </div>
               
               {/* Category Filter */}
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm min-w-[140px]"
-              >
-                <option value="all">جميع الفئات</option>
-                {availableCategories.map((category, index) => (
-                  <option key={`category-${index}`} value={category}>{category}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white/70 backdrop-blur-sm appearance-none"
+                >
+                  <option value="all">جميع الفئات ({channels.length})</option>
+                  {availableCategories.map((category, index) => {
+                    const categoryCount = channels.filter(ch => ch.category === category).length
+                    return (
+                      <option key={`category-${index}`} value={category}>
+                        {category} ({categoryCount})
+                      </option>
+                    )
+                  })}
+                </select>
+                <div className="absolute ltr:right-3 rtl:left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Channels Grid */}
-        <div className="p-3 sm:p-6">
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 sm:gap-4 max-h-80 sm:max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        <div className="p-2 sm:p-6">
+          <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4 max-h-80 sm:max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             {filteredChannels.map((channel) => (
               <div
                 key={channel.id}
@@ -1101,52 +1679,39 @@ const EnhancedVideoPlayer = ({
                 }`}
                 onClick={() => handleChannelSelect(channel)}
               >
-                {/* Channel Card */}
-                <div className="bg-gradient-to-br from-white to-gray-50 p-2 sm:p-4 h-full min-h-[120px] sm:min-h-[180px]">
-                  {/* Channel Logo - Mobile Optimized */}
-                  <div className="flex flex-col items-center mb-2 sm:mb-3">
-                    <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg overflow-hidden bg-white shadow-sm border border-gray-200 flex items-center justify-center mb-1 sm:mb-2">
+                {/* Channel Card - Simplified */}
+                <div className="bg-gradient-to-br from-white to-gray-50 p-3 h-full min-h-[100px] sm:min-h-[120px] flex flex-col items-center justify-center text-center">
+                  {/* Channel Logo - Enlarged */}
+                  <div className="flex flex-col items-center mb-2">
+                    <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-lg sm:rounded-xl overflow-hidden bg-white shadow-md border border-gray-200 flex items-center justify-center mb-2">
                       {channel.logo_url ? (
-                        <img 
+                        <LazyImage 
                           src={channel.logo_url} 
-                          alt={channel.name}
-                          className="w-full h-full object-contain p-0.5 sm:p-1"
-                          loading="lazy"
+                          alt={channel.name_ar || channel.name}
+                          className="w-full h-full object-contain p-1"
                           referrerPolicy="no-referrer"
                           crossOrigin="anonymous"
+                          fallback={
+                            <div className={`w-full h-full ${getCategoryColor(channel.category)} flex items-center justify-center`}>
+                              {getChannelIcon(channel.category, 'w-8 h-8 sm:w-12 sm:h-12')}
+                            </div>
+                          }
                           onError={(e) => {
                             console.log('Logo failed to load (ORB/CORS):', channel.logo_url)
-                            // إخفاء الصورة وإظهار الأيقونة البديلة
-                            e.target.style.display = 'none'
-                            const fallbackDiv = e.target.nextElementSibling
-                            if (fallbackDiv) {
-                              fallbackDiv.style.display = 'flex'
-                              fallbackDiv.classList.remove('hidden')
-                            }
                           }}
                         />
                       ) : null}
                       <div className={`w-full h-full ${getCategoryColor(channel.category)} items-center justify-center ${channel.logo_url ? 'hidden' : 'flex'}`}>
-                        {getChannelIcon(channel.category, 'w-4 h-4 sm:w-7 sm:h-7')}
+                        {getChannelIcon(channel.category, 'w-8 h-8 sm:w-12 sm:h-12')}
                       </div>
                     </div>
-                    
-
                   </div>
 
-                  {/* Channel Info - Mobile Optimized */}
-                  <div className="space-y-1 sm:space-y-3 flex-1 text-center sm:text-right">
-                    <div>
-                      <h3 className="font-bold text-gray-900 text-xs sm:text-base truncate leading-tight mb-0.5 sm:mb-1">{channel.name}</h3>
-                      <p className="text-xs text-gray-600 truncate hidden sm:block">{channel.country}</p>
-                    </div>
-                    
-
-
-                    {/* Stats - Mobile Optimized */}
-                    <div className="flex items-center justify-center sm:justify-between text-xs text-gray-500 mt-auto space-x-2 sm:space-x-0">
-                      <span className="hidden sm:inline">{(channel.viewers / 1000000).toFixed(1)}M مشاهد</span>
-                    </div>
+                  {/* Channel Name Only */}
+                  <div className="flex-1 flex flex-col items-center justify-center text-center">
+                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base leading-tight line-clamp-2" title={channel.name_ar || channel.name}>
+                      {channel.name_ar || channel.name}
+                    </h3>
                   </div>
 
                   {/* Play Overlay */}
@@ -1182,6 +1747,6 @@ const EnhancedVideoPlayer = ({
       </div>
     </div>
   );
-}
+})
 
 export default EnhancedVideoPlayer
