@@ -2,7 +2,13 @@
 const nextConfig = {
   // Image optimization for better performance
   images: {
-    domains: ['localhost', 'supabase.co'],
+    domains: [
+      'localhost', 
+      'supabase.co', 
+      'jrtctjgdkvkdrjcbbbaz.supabase.co',
+      'www.zomiga.live',
+      'zomiga.live'
+    ],
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
@@ -102,6 +108,14 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'unsafe-none',
+          },
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'cross-origin',
           },
         ],
       },

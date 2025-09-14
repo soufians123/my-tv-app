@@ -55,31 +55,42 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    console.log('📝 Register: Form submitted')
     
-    if (!validateForm()) return
+    if (!validateForm()) {
+      console.log('❌ Register: Form validation failed')
+      return
+    }
 
+    console.log('⏳ Register: Starting registration process...')
     setLoading(true)
     
     try {
       const normalizedEmail = (formData.email || '').trim().toLowerCase()
       const normalizedUsername = (formData.username || '').trim()
+      console.log('📋 Register: Normalized data:', { normalizedEmail, normalizedUsername })
 
       const { data, error } = await signUp(normalizedEmail, formData.password, {
         username: normalizedUsername,
         full_name: normalizedUsername // تمرير الاسم الكامل لتوافق التريغر في قاعدة البيانات
       })
       
+      console.log('📋 Register: SignUp result:', { hasData: !!data, hasError: !!error })
+      
       if (error) {
+        console.error('❌ Register: SignUp error:', error)
         // عرض رسالة الخطأ الفعلية للمساعدة في التشخيص
         toast.error(error?.message || 'حدث خطأ أثناء إنشاء الحساب')
       } else {
+        console.log('✅ Register: Registration successful, redirecting to login')
         toast.success('تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني لتأكيد الحساب قبل تسجيل الدخول')
         router.push('/auth/login')
       }
     } catch (error) {
+      console.error('❌ Register: Unexpected error:', error)
       toast.error(error?.message || 'حدث خطأ غير متوقع')
-      console.error('Register error:', error)
     } finally {
+      console.log('🔄 Register: Setting loading to false')
       setLoading(false)
     }
   }
@@ -222,7 +233,10 @@ const RegisterPage = () => {
               >
                 {loading ? (
                   <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                     جاري إنشاء الحساب...
                   </div>
                 ) : (

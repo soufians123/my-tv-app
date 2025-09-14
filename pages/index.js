@@ -18,7 +18,9 @@ import { useFavorites } from '../components/FavoritesSystem'
 import { BannerAd, CardAd, InlineAd } from '../components/AdvertisementSystem'
 
 const HomePage = () => {
+  console.log('🏠 HomePage: Component initializing')
   const { user, loading: authLoading } = useAuth()
+  console.log('🏠 HomePage: Auth state:', { user: !!user, authLoading })
   const router = useRouter()
   const { showToast } = useToast()
   const { isFavorite, toggleFavorite } = useFavorites()
@@ -99,11 +101,14 @@ const HomePage = () => {
 
   // Simulate realistic loading experience
   useEffect(() => {
+    console.log('🏠 HomePage: useEffect triggered, authLoading:', authLoading)
     if (!authLoading) {
+      console.log('🏠 HomePage: Auth loading complete, starting data loading...')
       // Simulate API calls with realistic delays
       
       // Load stats
       setTimeout(() => {
+        console.log('📊 HomePage: Loading stats...')
         setStats({
           totalChannels: 150,
           liveChannels: 45,
@@ -112,18 +117,24 @@ const HomePage = () => {
           games: 85
         })
         setLoading(prev => ({ ...prev, stats: false }))
+        console.log('✅ HomePage: Stats loaded')
       }, 800)
 
       // Load channels
       setTimeout(() => {
+        console.log('📺 HomePage: Loading channels...')
         setChannels(sampleChannels)
         setLoading(prev => ({ ...prev, channels: false }))
+        console.log('✅ HomePage: Channels loaded')
       }, 1200)
 
       // Page fully loaded
       setTimeout(() => {
+        console.log('🎉 HomePage: Page fully loaded')
         setLoading(prev => ({ ...prev, page: false }))
       }, 1500)
+    } else {
+      console.log('⏳ HomePage: Waiting for auth to complete...')
     }
   }, [authLoading])
 

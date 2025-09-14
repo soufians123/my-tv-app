@@ -6,9 +6,12 @@ import { ToastProvider } from '../components/ToastSystem'
 import FavoritesProvider from '../components/FavoritesSystem'
 import { CommentsProvider } from '../components/CommentsSystem'
 import { AdvertisementProvider } from '../components/AdvertisementSystem'
+import LoadingFallback from '../components/LoadingFallback'
 import Head from 'next/head'
 
 export default function App({ Component, pageProps }) {
+  console.log('🚀 App: Component starting to render:', Component.name || 'Unknown')
+  
   return (
     <>
       <Head>
@@ -33,18 +36,20 @@ export default function App({ Component, pageProps }) {
       
       <ThemeProvider>
         <AuthProvider>
-          <ToastProvider>
-            <FavoritesProvider>
-              <CommentsProvider>
-                <AdvertisementProvider>
-                  {/* اجعل الخلفية تستجيب للوضع الداكن */}
-                  <div className="bg-gray-50 dark:bg-gray-900" dir="rtl" lang="ar">
-                    <Component {...pageProps} />
-                  </div>
-                </AdvertisementProvider>
-              </CommentsProvider>
-            </FavoritesProvider>
-          </ToastProvider>
+          <LoadingFallback>
+            <ToastProvider>
+              <FavoritesProvider>
+                <CommentsProvider>
+                  <AdvertisementProvider>
+                    {/* اجعل الخلفية تستجيب للوضع الداكن */}
+                    <div className="bg-gray-50 dark:bg-gray-900" dir="rtl" lang="ar">
+                      <Component {...pageProps} />
+                    </div>
+                  </AdvertisementProvider>
+                </CommentsProvider>
+              </FavoritesProvider>
+            </ToastProvider>
+          </LoadingFallback>
         </AuthProvider>
       </ThemeProvider>
     </>

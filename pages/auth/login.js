@@ -28,18 +28,23 @@ const LoginPage = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault()
+    console.log('🔑 Login: Form submitted')
     
     if (!email || !password) {
+      console.log('❌ Login: Missing email or password')
       toast.error('يرجى ملء جميع الحقول')
       return
     }
 
+    console.log('⏳ Login: Starting login process...', { email })
     setLoading(true)
     
     try {
       const result = await signIn(email, password)
+      console.log('📋 Login: SignIn result:', { hasData: !!result.data, hasError: !!result.error })
       
       if (result.error) {
+        console.error('❌ Login: SignIn error:', result.error)
         if (result.error.message?.includes('Invalid login credentials')) {
           toast.error('بيانات الدخول غير صحيحة')
         } else if (result.error.message?.includes('Email not confirmed')) {
@@ -50,6 +55,7 @@ const LoginPage = () => {
           toast.error('خطأ في تسجيل الدخول: ' + (result.error.message || 'خطأ غير معروف'))
         }
       } else {
+        console.log('✅ Login: Login successful, preparing redirect')
         toast.success('تم تسجيل الدخول بنجاح')
         
         // إعادة التوجيه بعد نجاح تسجيل الدخول
@@ -57,14 +63,16 @@ const LoginPage = () => {
         const rawRedirect = router.query.redirectTo
         const redirectTo = typeof rawRedirect === 'string' ? rawRedirect : null
         const safeRedirect = redirectTo && redirectTo.startsWith('/') ? redirectTo : '/'
+        console.log('🔄 Login: Redirecting to:', safeRedirect)
         
         // استخدام assign بدلاً من push أو href مع setTimeout
         window.location.assign(safeRedirect)
       }
     } catch (error) {
-      console.error('Login error:', error)
+      console.error('❌ Login: Unexpected error:', error)
       toast.error('حدث خطأ غير متوقع')
     } finally {
+      console.log('🔄 Login: Setting loading to false')
       setLoading(false)
     }
   }
@@ -165,7 +173,10 @@ const LoginPage = () => {
               >
                 {loading ? (
                   <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                     جاري تسجيل الدخول...
                   </div>
                 ) : (

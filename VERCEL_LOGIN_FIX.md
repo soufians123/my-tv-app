@@ -1,10 +1,22 @@
 # حل مشكلة تسجيل الدخول على Vercel
 
-## المشكلة
+## المشاكل الشائعة
+
+### 1. مشكلة تسجيل الدخول المعلق
 عند نشر التطبيق على Vercel، تسجيل الدخول يبقى في حالة تحميل (دوران) ولا يكتمل.
 
-## السبب الرئيسي
-متغيرات البيئة غير مضبوطة بشكل صحيح على Vercel، خاصة `NEXTAUTH_URL` الذي يشير إلى localhost بدلاً من URL الفعلي للموقع.
+### 2. خطأ Invalid URL في البناء
+ظهور خطأ `TypeError: Invalid URL` مع الرسالة `input: 'Project URL/'` أثناء بناء التطبيق على Vercel.
+
+## الأسباب الرئيسية
+
+### السبب الأول: متغيرات البيئة غير مضبوطة
+متغيرات البيئة غير مضبوطة بشكل صحيح على Vercel، خاصة:
+- `NEXTAUTH_URL` الذي يشير إلى localhost بدلاً من URL الفعلي للموقع
+- `NEXT_PUBLIC_SUPABASE_URL` يحتوي على القيمة الافتراضية 'Project URL/' بدلاً من URL صحيح
+
+### السبب الثاني: عدم تحديث Supabase URL
+عدم استبدال القيمة الافتراضية لـ `NEXT_PUBLIC_SUPABASE_URL` بـ URL مشروع Supabase الفعلي.
 
 ## الحلول المطلوبة
 
@@ -84,6 +96,27 @@ NEXTAUTH_SECRET=zomiga-secret-key-2024
 
 3. **تحقق من Vercel Function Logs**
    - اذهب إلى Vercel Dashboard → Functions
+   - ابحث عن أخطاء في runtime logs
+
+### حل خطأ "Invalid URL" تحديداً:
+
+**الخطأ:** `TypeError: Invalid URL` مع `input: 'Project URL/'`
+
+**السبب:** متغير البيئة `NEXT_PUBLIC_SUPABASE_URL` يحتوي على القيمة الافتراضية بدلاً من URL صحيح.
+
+**الحل:**
+1. اذهب إلى Vercel Dashboard → Settings → Environment Variables
+2. ابحث عن `NEXT_PUBLIC_SUPABASE_URL`
+3. تأكد من أن القيمة هي URL صحيح مثل: `https://jrtctjgdkvkdrjcbbbaz.supabase.co`
+4. إذا كانت القيمة `Project URL/` أو فارغة، استبدلها بـ URL مشروع Supabase الصحيح
+5. احفظ التغييرات وأعد نشر التطبيق
+
+**للتحقق من URL الصحيح:**
+- اذهب إلى Supabase Dashboard
+- اختر مشروعك
+- انسخ URL من Settings → API
+
+**ملاحظة:** التطبيق الآن يتضمن فحص أفضل لـ URL ويعطي رسالة خطأ واضحة إذا كان URL غير صحيح.
    - تحقق من logs للأخطاء
 
 4. **تحقق من Supabase Logs**
