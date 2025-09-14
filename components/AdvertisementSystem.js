@@ -259,18 +259,18 @@ const BannerAd = ({ position = 'header', className = '' }) => {
       {adSettings.showCloseButton && (
         <button
           onClick={handleClose}
-          className="absolute top-3 left-3 z-10 bg-white bg-opacity-90 text-gray-600 rounded-full p-1.5 hover:bg-opacity-100 hover:text-gray-800 transition-all duration-200 shadow-sm"
+          className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10 bg-white bg-opacity-90 text-gray-600 rounded-full p-1 sm:p-1.5 hover:bg-opacity-100 hover:text-gray-800 transition-all duration-200 shadow-sm touch-target"
         >
           <X className="w-3 h-3" />
         </button>
       )}
       
       <div 
-        className="cursor-pointer flex items-center p-4 group hover:bg-white hover:bg-opacity-50 transition-all duration-300"
+        className="cursor-pointer flex items-center p-2 sm:p-4 group hover:bg-white hover:bg-opacity-50 transition-all duration-300"
         onClick={handleClick}
       >
         {currentAd.image && (
-          <div className="relative overflow-hidden rounded-xl mr-4 group-hover:scale-105 transition-transform duration-300 w-24 h-24 flex items-center justify-center bg-white">
+          <div className="relative overflow-hidden rounded-lg sm:rounded-xl mr-2 sm:mr-4 group-hover:scale-105 transition-transform duration-300 w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center bg-white flex-shrink-0">
             <img 
               src={currentAd.image} 
               alt={currentAd.title}
@@ -279,15 +279,16 @@ const BannerAd = ({ position = 'header', className = '' }) => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
         )}
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-bold text-lg text-gray-800 group-hover:text-purple-700 transition-colors duration-300">{currentAd.title}</h3>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1 sm:gap-2 mb-1">
+            <h3 className="font-bold text-base sm:text-lg text-gray-800 group-hover:text-purple-700 transition-colors duration-300 line-clamp-1">{currentAd.title}</h3>
           </div>
-          <p className="text-sm text-gray-600 line-clamp-2">{currentAd.description}</p>
+          <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 mb-2 sm:mb-0">{currentAd.description}</p>
         </div>
-        <div className="text-left">
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium group-hover:from-purple-700 group-hover:to-pink-700 transition-all duration-300">
-            اعرف المزيد
+        <div className="text-left flex-shrink-0">
+          <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs font-medium group-hover:from-purple-700 group-hover:to-pink-700 transition-all duration-300 touch-target">
+            <span className="hidden sm:inline">اعرف المزيد</span>
+            <span className="sm:hidden">عرض</span>
           </div>
         </div>
       </div>
@@ -340,10 +341,10 @@ const CardAd = ({ position = 'sidebar', className = '' }) => {
   }
 
   return (
-    <div className={`relative bg-white border border-gray-50 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all duration-300 group ${className}`}>
+    <div className={`relative bg-white border border-gray-50 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm hover:shadow-md transition-all duration-300 group ${className}`}>
       <button
         onClick={handleClose}
-        className="absolute top-2 right-2 text-gray-200 hover:text-gray-400 transition-colors z-10 bg-white/80 hover:bg-white rounded-full p-1.5 shadow-sm"
+        className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 text-gray-200 hover:text-gray-400 transition-colors z-10 bg-white/80 hover:bg-white rounded-full p-1 sm:p-1.5 shadow-sm touch-target"
         aria-label="Close advertisement"
       >
         <X className="w-3 h-3" />
@@ -353,8 +354,8 @@ const CardAd = ({ position = 'sidebar', className = '' }) => {
         className="cursor-pointer"
         onClick={handleClick}
       >
-        <div className="space-y-3">
-          <div className="w-full h-28 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl flex items-center justify-center overflow-hidden">
+        <div className="space-y-2 sm:space-y-3">
+          <div className="w-full h-20 sm:h-28 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl sm:rounded-2xl flex items-center justify-center overflow-hidden">
             <img 
               src={ad.image} 
               alt={ad.title}
@@ -363,10 +364,10 @@ const CardAd = ({ position = 'sidebar', className = '' }) => {
           </div>
           
           <div>
-            <h3 className="font-medium text-gray-900 text-sm mb-1.5">{ad.title}</h3>
-            <p className="text-gray-500 text-xs leading-relaxed mb-3">{ad.description}</p>
+            <h3 className="font-medium text-gray-900 text-xs sm:text-sm mb-1 sm:mb-1.5 line-clamp-1">{ad.title}</h3>
+            <p className="text-gray-500 text-xs leading-relaxed mb-2 sm:mb-3 line-clamp-2">{ad.description}</p>
             
-            <button className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2.5 px-4 rounded-2xl text-xs font-medium transition-all duration-300">
+            <button className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl sm:rounded-2xl text-xs font-medium transition-all duration-300 touch-target">
               اعرف المزيد
             </button>
           </div>
@@ -419,13 +420,13 @@ const PopupAd = ({ className = '' }) => {
   }
 
   return (
-    <div className={`fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-300 ${isAnimating ? 'opacity-100' : 'opacity-0'}`}>
-      <div className={`relative bg-white rounded-2xl shadow-xl max-w-sm w-full overflow-hidden transform transition-all duration-500 ${isAnimating ? 'scale-100 translate-y-0' : 'scale-95 translate-y-8'} border border-gray-100 ${className}`}>
+    <div className={`fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 transition-all duration-300 ${isAnimating ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`relative bg-white rounded-xl sm:rounded-2xl shadow-xl max-w-xs sm:max-w-sm w-full overflow-hidden transform transition-all duration-500 ${isAnimating ? 'scale-100 translate-y-0' : 'scale-95 translate-y-8'} border border-gray-100 ${className}`}>
         <button
           onClick={handleClose}
-          className="absolute top-3 right-3 z-10 bg-gray-50 hover:bg-gray-100 text-gray-300 hover:text-gray-500 rounded-full p-1.5 transition-all duration-200"
+          className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 bg-gray-50 hover:bg-gray-100 text-gray-300 hover:text-gray-500 rounded-full p-1 sm:p-1.5 transition-all duration-200 touch-target"
         >
-          <X className="w-4 h-4" />
+          <X className="w-3 h-3 sm:w-4 sm:h-4" />
         </button>
         
         <div 
@@ -437,22 +438,22 @@ const PopupAd = ({ className = '' }) => {
               <img 
                 src={currentAd.image} 
                 alt={currentAd.title}
-                className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-32 sm:h-40 object-cover group-hover:scale-105 transition-transform duration-300"
               />
             </div>
           )}
           
-          <div className="p-5">
-            <h3 className="font-semibold text-lg mb-2 text-gray-900 group-hover:text-gray-700 transition-colors duration-300">{currentAd.title}</h3>
-            <p className="text-gray-500 mb-5 leading-relaxed text-sm">{currentAd.description}</p>
+          <div className="p-3 sm:p-5">
+            <h3 className="font-semibold text-base sm:text-lg mb-2 text-gray-900 group-hover:text-gray-700 transition-colors duration-300 line-clamp-1">{currentAd.title}</h3>
+            <p className="text-gray-500 mb-4 sm:mb-5 leading-relaxed text-sm line-clamp-2">{currentAd.description}</p>
             
-            <div className="flex space-x-3">
-              <button className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-2.5 px-4 rounded-xl transition-all duration-300 font-medium text-sm">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              <button className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-2.5 px-4 rounded-lg sm:rounded-xl transition-all duration-300 font-medium text-sm touch-target">
                 اعرف المزيد
               </button>
               <button 
                 onClick={(e) => { e.stopPropagation(); handleClose(); }}
-                className="px-4 py-2.5 text-gray-400 hover:text-gray-600 transition-colors font-medium text-sm"
+                className="px-4 py-2.5 text-gray-400 hover:text-gray-600 transition-colors font-medium text-sm touch-target"
               >
                 إغلاق
               </button>
@@ -582,47 +583,54 @@ const InlineAd = ({ position = 'content', size = 'medium', className = '' }) => 
     large: 'p-6'
   }
 
+  const mobileClasses = {
+    small: 'p-2',
+    medium: 'p-2 sm:p-4',
+    large: 'p-3 sm:p-6'
+  }
+
   return (
-    <div className={`relative bg-white border border-gray-100 rounded-2xl overflow-hidden group hover:shadow-sm transition-all duration-300 ${sizeClasses[size]} ${className}`}>
+    <div className={`relative bg-white border border-gray-100 rounded-xl sm:rounded-2xl overflow-hidden group hover:shadow-sm transition-all duration-300 ${mobileClasses[size]} ${className}`}>
       <button
         onClick={handleClose}
-        className="absolute top-2 right-2 z-10 bg-gray-50 hover:bg-gray-100 text-gray-300 hover:text-gray-500 rounded-full p-1 transition-all duration-200"
+        className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 z-10 bg-gray-50 hover:bg-gray-100 text-gray-300 hover:text-gray-500 rounded-full p-1 transition-all duration-200 touch-target"
       >
         <X className="w-3 h-3" />
       </button>
       
       <div 
-        className="cursor-pointer flex items-center gap-4 hover:bg-gray-50 rounded-xl p-2 transition-all duration-300 mt-2"
+        className="cursor-pointer flex items-center gap-2 sm:gap-4 hover:bg-gray-50 rounded-lg sm:rounded-xl p-1 sm:p-2 transition-all duration-300 mt-1 sm:mt-2"
         onClick={handleClick}
       >
         {currentAd.image && (
-          <div className="relative overflow-hidden rounded-lg flex-shrink-0">
+          <div className="relative overflow-hidden rounded-md sm:rounded-lg flex-shrink-0">
             <img 
               src={currentAd.image} 
               alt={currentAd.title}
               className={`object-contain group-hover:scale-102 transition-transform duration-500 ${
-                size === 'small' ? 'w-12 h-12' : size === 'large' ? 'w-20 h-20' : 'w-16 h-16'
+                size === 'small' ? 'w-10 h-10 sm:w-12 sm:h-12' : size === 'large' ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-12 h-12 sm:w-16 sm:h-16'
               }`}
             />
           </div>
         )}
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h4 className={`font-medium text-gray-900 group-hover:text-gray-700 transition-colors duration-300 truncate ${
-              size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : 'text-base'
+          <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1">
+            <h4 className={`font-medium text-gray-900 group-hover:text-gray-700 transition-colors duration-300 line-clamp-1 ${
+              size === 'small' ? 'text-xs sm:text-sm' : size === 'large' ? 'text-sm sm:text-lg' : 'text-xs sm:text-base'
             }`}>{currentAd.title}</h4>
           </div>
-          <p className={`text-gray-500 line-clamp-2 ${
-            size === 'small' ? 'text-xs' : size === 'large' ? 'text-sm' : 'text-xs'
+          <p className={`text-gray-500 line-clamp-1 sm:line-clamp-2 ${
+            size === 'small' ? 'text-xs' : size === 'large' ? 'text-xs sm:text-sm' : 'text-xs'
           }`}>{currentAd.description}</p>
         </div>
         
         <div className="flex-shrink-0">
-          <div className={`bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-all duration-300 text-center ${
-            size === 'small' ? 'px-2 py-1 text-xs' : size === 'large' ? 'px-4 py-2 text-sm' : 'px-3 py-1.5 text-xs'
+          <div className={`bg-gray-900 hover:bg-gray-800 text-white rounded-md sm:rounded-lg font-medium transition-all duration-300 text-center touch-target ${
+            size === 'small' ? 'px-2 py-1 text-xs' : size === 'large' ? 'px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm' : 'px-2 py-1 sm:px-3 sm:py-1.5 text-xs'
           }`}>
-            {size === 'large' ? 'اعرف المزيد' : 'عرض'}
+            <span className="hidden sm:inline">{size === 'large' ? 'اعرف المزيد' : 'عرض'}</span>
+            <span className="sm:hidden">عرض</span>
           </div>
         </div>
       </div>
