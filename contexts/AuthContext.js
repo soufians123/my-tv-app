@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [authError, setAuthError] = useState(null)
+  const [isStable, setIsStable] = useState(false) // Track auth stability
 
   // Helper function to save user data to localStorage
   const saveUserToStorage = (userData) => {
@@ -121,6 +122,7 @@ export const AuthProvider = ({ children }) => {
           }
           setLoading(false)
           setAuthError(null)
+          setIsStable(true) // Mark as stable after successful initialization
           clearTimeout(fallbackTimeout)
         } else {
           console.log('❌ No session found')
@@ -155,7 +157,11 @@ export const AuthProvider = ({ children }) => {
     // Listen for auth changes with enhanced error handling
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔄 AuthContext: Auth state changed:', { event, hasSession: !!session })
+        console.log('🔄 AuthContext: Auth state changed:', event)
+        
+        // Add small delay to prevent rapid state changes
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
         if (mounted) {
           try {
             const userData = session?.user ?? null
@@ -183,6 +189,12 @@ export const AuthProvider = ({ children }) => {
             }
             console.log('✅ AuthContext: Updating user state from auth change')
             setUser(userData)
+            // Save admin user data to localStorage for persistence
+            if (userData && userData.role === 'admin') {
+              saveUserToStorage(userData)
+            } else if (!userData) {
+              clearUserFromStorage()
+            }
             setLoading(false)
             setAuthError(null)
           } catch (stateChangeError) {
@@ -193,28 +205,13 @@ export const AuthProvider = ({ children }) => {
       }
     )
 
-    // Set up periodic session validation for admin users
-    const sessionCheckInterval = setInterval(() => {
-      if (user && user.role === 'admin') {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (!session) {
-            console.warn('⚠️ Session expired, using stored data')
-            const storedUser = loadUserFromStorage()
-            if (!storedUser || storedUser.role !== 'admin') {
-              console.log('🔄 No valid stored data, signing out')
-              setUser(null)
-              clearUserFromStorage()
-            }
-          }
-        })
-      }
-    }, 60000) // Check every minute
+    // Remove periodic session validation to prevent login/logout loops
+    // Session validation will be handled by onAuthStateChange listener only
 
     return () => {
       console.log('🧹 AuthContext: Cleaning up auth effect')
       mounted = false
       clearTimeout(fallbackTimeout)
-      clearInterval(sessionCheckInterval)
       subscription?.unsubscribe()
     }
   }, [user])
@@ -392,6 +389,7 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     authError,
+    isStable,
     signUp,
     signIn,
     signOut,
