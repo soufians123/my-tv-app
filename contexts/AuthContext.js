@@ -16,23 +16,54 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [authError, setAuthError] = useState(null)
+
+  // Helper function to save user data to localStorage
+  const saveUserToStorage = (userData) => {
+    if (typeof window !== 'undefined' && userData) {
+      localStorage.setItem('admin_user_data', JSON.stringify(userData))
+    }
+  }
+
+  // Helper function to load user data from localStorage
+  const loadUserFromStorage = () => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('admin_user_data')
+      return stored ? JSON.parse(stored) : null
+    }
+    return null
+  }
+
+  // Helper function to clear user data from localStorage
+  const clearUserFromStorage = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('admin_user_data')
+    }
+  }
   console.log('🔧 AuthProvider: Initial state set - loading: true')
 
   useEffect(() => {
     let mounted = true
-    let timeoutId = null
-    
     console.log('🔄 AuthContext: Starting initialization...')
     
-    // Fallback timeout to prevent infinite loading
+    // Try to load user from localStorage first for faster loading
+    const storedUser = loadUserFromStorage()
+    if (storedUser && storedUser.role === 'admin') {
+      console.log('📦 Loading user from storage:', storedUser.email)
+      setUser(storedUser)
+    }
+    
+    // Fallback timeout to prevent infinite loading - increased timeout and better handling
     const fallbackTimeout = setTimeout(() => {
       if (mounted && loading) {
-        console.warn('⏰ Auth initialization timeout - falling back to no user')
-        setUser(null)
+        console.warn('⏰ Auth initialization timeout - keeping current state')
+        // Don't reset user to null if we already have a session or stored data
+        if (!user && !storedUser) {
+          setUser(null)
+          setAuthError('انتهت مهلة تحميل المصادقة')
+        }
         setLoading(false)
-        setAuthError('انتهت مهلة تحميل المصادقة')
       }
-    }, 10000) // 10 seconds timeout
+    }, 30000) // 30 seconds timeout instead of 10
     
     // Get initial session with enhanced error handling
     const getInitialSession = async () => {
@@ -71,7 +102,7 @@ export const AuthProvider = ({ children }) => {
                 .single()
               
               const profileTimeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Profile timeout')), 5000)
+                setTimeout(() => reject(new Error('Profile timeout')), 10000)
               )
               
               const { data: profile } = await Promise.race([profilePromise, profileTimeoutPromise])
@@ -84,6 +115,24 @@ export const AuthProvider = ({ children }) => {
           }
           console.log('✅ AuthContext: Setting user and completing initialization')
           setUser(userData)
+          // Save admin user data to localStorage for persistence
+          if (userData && userData.role === 'admin') {
+            saveUserToStorage(userData)
+          }
+          setLoading(false)
+          setAuthError(null)
+          clearTimeout(fallbackTimeout)
+        } else {
+          console.log('❌ No session found')
+          // Check if we have stored admin data as fallback
+          const storedUser = loadUserFromStorage()
+          if (storedUser && storedUser.role === 'admin') {
+            console.log('📦 Using stored admin data as fallback')
+            setUser(storedUser)
+          } else {
+            setUser(null)
+            clearUserFromStorage()
+          }
           setLoading(false)
           setAuthError(null)
           clearTimeout(fallbackTimeout)
@@ -144,13 +193,31 @@ export const AuthProvider = ({ children }) => {
       }
     )
 
+    // Set up periodic session validation for admin users
+    const sessionCheckInterval = setInterval(() => {
+      if (user && user.role === 'admin') {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (!session) {
+            console.warn('⚠️ Session expired, using stored data')
+            const storedUser = loadUserFromStorage()
+            if (!storedUser || storedUser.role !== 'admin') {
+              console.log('🔄 No valid stored data, signing out')
+              setUser(null)
+              clearUserFromStorage()
+            }
+          }
+        })
+      }
+    }, 60000) // Check every minute
+
     return () => {
       console.log('🧹 AuthContext: Cleaning up auth effect')
       mounted = false
       clearTimeout(fallbackTimeout)
+      clearInterval(sessionCheckInterval)
       subscription?.unsubscribe()
     }
-  }, [])
+  }, [user])
 
   const signUp = async (email, password, userData = {}, retryCount = 0) => {
     console.log('📝 AuthContext: Starting signUp process...', { email, userData, attempt: retryCount + 1 })
@@ -268,9 +335,14 @@ export const AuthProvider = ({ children }) => {
       if (error) throw error
       
       setUser(null)
+      setAuthError(null)
+      // Clear stored user data
+      clearUserFromStorage()
+      console.log('✅ User signed out successfully')
       return { error: null }
     } catch (error) {
-      console.error('Error signing out:', error)
+      console.error('❌ Error signing out:', error)
+      setAuthError(error.message)
       return { error }
     } finally {
       setLoading(false)
