@@ -295,7 +295,7 @@ const FavoritesPage = () => {
                 </div>
               ) : (
                 /* عرض نوع محدد */
-                (<div>
+                <div>
                   {activeTab === 'channels' && (
                     <FavoritesDisplay
                       type="channels"
@@ -317,7 +317,7 @@ const FavoritesPage = () => {
                       emptyMessage="لم تقم بإضافة أي ألعاب للمفضلة بعد"
                     />
                   )}
-                </div>)
+                </div>
               )}
             </div>
           </div>
