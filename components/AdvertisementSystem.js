@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, createContext } from 'react'
+import React, { useState, useEffect, useContext, createContext, useCallback, useMemo } from 'react'
 import { X, Eye, MousePointerClick, TrendingUp, Calendar, Target, BarChart3, Settings, Plus, Edit, Trash2 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { getAllActiveAds } from '../lib/advertisementsService'
@@ -34,7 +34,7 @@ const AdvertisementProvider = ({ children }) => {
     loadUserPreferences()
   }, [])
 
-  const loadAdvertisements = async () => {
+  const loadAdvertisements = useCallback(async () => {
     try {
       // جلب الإعلانات الحقيقية من Supabase مع مراعاة تاريخ الانتهاء (قد يكون NULL)
       const activeAds = await getAllActiveAds(100)
@@ -66,7 +66,7 @@ const AdvertisementProvider = ({ children }) => {
     } catch (error) {
       console.error('Error loading advertisements:', error)
     }
-  }
+  }, [])
 
   const loadAdSettings = () => {
     const savedSettings = localStorage.getItem('adSettings')
@@ -92,7 +92,7 @@ const AdvertisementProvider = ({ children }) => {
     }
   }
 
-  const trackAdImpression = (adId) => {
+  const trackAdImpression = useCallback((adId) => {
     setAdStats(prev => ({
       ...prev,
       [adId]: {
@@ -101,9 +101,9 @@ const AdvertisementProvider = ({ children }) => {
         lastSeen: new Date().toISOString()
       }
     }))
-  }
+  }, [])
 
-  const trackAdClick = (adId) => {
+  const trackAdClick = useCallback((adId) => {
     setAdStats(prev => ({
       ...prev,
       [adId]: {
@@ -112,31 +112,32 @@ const AdvertisementProvider = ({ children }) => {
         lastClicked: new Date().toISOString()
       }
     }))
-  }
+  }, [])
+
+  // Memoized contextual mapping for better performance
+  const contextualMapping = useMemo(() => ({
+    'gaming': ['ألعاب', 'تقنية', 'ترفيه'],
+    'games': ['ألعاب', 'تقنية', 'ترفيه'],
+    'articles': ['تعليم', 'كتب', 'أخبار', 'نمط حياة'],
+    'gifts': ['تسوق', 'نمط حياة', 'أزياء', 'تقنية'],
+    'index': ['عام', 'تقنية', 'نمط حياة'],
+    'header': ['عام', 'تقنية'],
+    'sidebar': ['نمط حياة', 'تسوق'],
+    'footer': ['عام', 'تعليم'],
+    'default': ['عام', 'تقنية', 'نمط حياة']
+  }), [])
 
   // Enhanced smart ad selection based on context and user behavior
-  const getContextualAds = (context, userPreferences = {}) => {
-    const contextualMapping = {
-      'gaming': ['ألعاب', 'تقنية', 'ترفيه'],
-      'games': ['ألعاب', 'تقنية', 'ترفيه'],
-      'articles': ['تعليم', 'كتب', 'أخبار', 'نمط حياة'],
-      'gifts': ['تسوق', 'نمط حياة', 'أزياء', 'تقنية'],
-      'index': ['عام', 'تقنية', 'نمط حياة'],
-      'header': ['عام', 'تقنية'],
-      'sidebar': ['نمط حياة', 'تسوق'],
-      'footer': ['عام', 'تعليم'],
-      'default': ['عام', 'تقنية', 'نمط حياة']
-    }
-    
+  const getContextualAds = useCallback((context, userPrefs = {}) => {
     const relevantCategories = contextualMapping[context] || contextualMapping.default
     let contextualAds = advertisements.filter(ad => 
       relevantCategories.includes(ad.category) || ad.category === 'عام'
     )
     
     // Apply user preferences if available
-    if (userPreferences.preferredCategories && userPreferences.preferredCategories.length > 0) {
+    if (userPrefs.preferredCategories && userPrefs.preferredCategories.length > 0) {
       const preferredAds = contextualAds.filter(ad => 
-        userPreferences.preferredCategories.some(interest => 
+        userPrefs.preferredCategories.some(interest => 
           ad.category.includes(interest) || ad.title.toLowerCase().includes(interest.toLowerCase())
         )
       )
@@ -151,9 +152,9 @@ const AdvertisementProvider = ({ children }) => {
     }
     
     return contextualAds
-  }
+  }, [advertisements, contextualMapping])
 
-  const getFilteredAds = (position, category = null) => {
+  const getFilteredAds = useCallback((position, category = null) => {
     if (!adSettings.enabled || !userPreferences.allowAds) {
       return []
     }
@@ -171,17 +172,17 @@ const AdvertisementProvider = ({ children }) => {
       
       return now >= startDate && (endDate === null || now <= endDate)
     })
-  }
+  }, [advertisements, adSettings.enabled, userPreferences.allowAds, userPreferences.blockedCategories])
 
-  const updateAdSettings = (newSettings) => {
+  const updateAdSettings = useCallback((newSettings) => {
     setAdSettings(newSettings)
     localStorage.setItem('adSettings', JSON.stringify(newSettings))
-  }
+  }, [])
 
-  const updateUserPreferences = (newPreferences) => {
+  const updateUserPreferences = useCallback((newPreferences) => {
     setUserPreferences(newPreferences)
     localStorage.setItem('userAdPreferences', JSON.stringify(newPreferences))
-  }
+  }, [])
 
   const value = {
     advertisements,

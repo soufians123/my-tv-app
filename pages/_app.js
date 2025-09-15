@@ -6,7 +6,7 @@ import { ToastProvider } from '../components/ToastSystem'
 import FavoritesProvider from '../components/FavoritesSystem'
 import { CommentsProvider } from '../components/CommentsSystem'
 import { AdvertisementProvider } from '../components/AdvertisementSystem'
-import LoadingFallback from '../components/LoadingFallback'
+import { LoadingFallback } from '../components/LoadingComponents'
 import Head from 'next/head'
 
 export default function App({ Component, pageProps }) {

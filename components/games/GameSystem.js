@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect, createContext, useContext, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Progress } from '../ui/progress';
@@ -193,6 +193,9 @@ export const GameSystemProvider = ({ children }) => {
 
   const [leaderboard, setLeaderboard] = useState([]);
   const [recentAchievements, setRecentAchievements] = useState([]);
+  
+  // Ref for achievement timeouts cleanup
+  const achievementTimeoutsRef = useRef([]);
 
   // Load player stats from localStorage
   useEffect(() => {
@@ -215,6 +218,19 @@ export const GameSystemProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('gameSystemStats', JSON.stringify(playerStats));
   }, [playerStats]);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      // Clear all achievement timeouts
+      achievementTimeoutsRef.current.forEach(timeout => {
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+      });
+      achievementTimeoutsRef.current = [];
+    };
+  }, []);
 
   // Calculate player rank
   const calculateRank = (totalScore) => {
@@ -332,10 +348,13 @@ export const GameSystemProvider = ({ children }) => {
     if (newAchievements.length > 0) {
       setRecentAchievements(prev => [...newAchievements, ...prev.slice(0, 4)]);
       
-      // Auto-hide after 5 seconds
-      setTimeout(() => {
+      // Auto-hide after 5 seconds with proper cleanup
+      const hideTimeout = setTimeout(() => {
         setRecentAchievements(prev => prev.filter(a => !newAchievements.includes(a)));
       }, 5000);
+      
+      // Store timeout for cleanup
+      achievementTimeoutsRef.current.push(hideTimeout);
     }
   };
 

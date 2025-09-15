@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react'
 import { Heart, Star, Trash2, Search, Filter, SortAsc } from 'lucide-react'
 import { Button, Card, Badge } from './ui/unified-components'
 
@@ -54,7 +54,7 @@ const FavoritesProvider = ({ children }) => {
   }, [favorites])
 
   // Add or remove item from favorites
-  const toggleFavorite = (type, item) => {
+  const toggleFavorite = useCallback((type, item) => {
     setFavorites(prev => {
       const currentFavorites = prev[type] || []
       const isAlreadyFavorite = currentFavorites.some(fav => fav.id === item.id)
@@ -73,10 +73,10 @@ const FavoritesProvider = ({ children }) => {
         }
       }
     })
-  }
+  }, [])
 
   // Explicit add/remove helpers for compatibility
-  const addToFavorites = (type, item) => {
+  const addToFavorites = useCallback((type, item) => {
     setFavorites(prev => {
       const currentFavorites = prev[type] || []
       const isAlreadyFavorite = currentFavorites.some(fav => fav.id === item.id)
@@ -86,48 +86,48 @@ const FavoritesProvider = ({ children }) => {
         [type]: [...currentFavorites, { ...item, addedAt: new Date().toISOString() }]
       }
     })
-  }
+  }, [])
 
-  const removeFromFavorites = (type, itemId) => {
+  const removeFromFavorites = useCallback((type, itemId) => {
     setFavorites(prev => ({
       ...prev,
       [type]: (prev[type] || []).filter(fav => fav.id !== itemId)
     }))
-  }
+  }, [])
 
   // Check if item is in favorites
-  const isFavorite = (type, itemId) => {
+  const isFavorite = useCallback((type, itemId) => {
     const currentFavorites = favorites[type] || []
     return currentFavorites.some(fav => fav.id === itemId)
-  }
+  }, [favorites])
 
   // Get favorites by type
-  const getFavorites = (type) => {
+  const getFavorites = useCallback((type) => {
     return favorites[type] || []
-  }
+  }, [favorites])
 
   // Get total favorites count
-  const getTotalFavorites = () => {
+  const getTotalFavorites = useMemo(() => {
     return Object.values(favorites).reduce((total, typeArray) => total + typeArray.length, 0)
-  }
+  }, [favorites])
 
   // Clear all favorites of a specific type
-  const clearFavorites = (type) => {
+  const clearFavorites = useCallback((type) => {
     setFavorites(prev => ({
       ...prev,
       [type]: []
     }))
-  }
+  }, [])
 
   // Clear all favorites across all types
-  const clearAllFavorites = () => {
+  const clearAllFavorites = useCallback(() => {
     setFavorites({
       channels: [], games: [], articles: [], products: [], gifts: []
     })
-  }
+  }, [])
 
   // Export favorites to JSON file
-  const exportFavorites = () => {
+  const exportFavorites = useCallback(() => {
     try {
       if (typeof window === 'undefined') return
       const dataStr = JSON.stringify(favorites, null, 2)
@@ -143,10 +143,10 @@ const FavoritesProvider = ({ children }) => {
     } catch (error) {
       console.error('Error exporting favorites:', error)
     }
-  }
+  }, [favorites])
 
   // Import favorites from JSON file (File input)
-  const importFavorites = async (file) => {
+  const importFavorites = useCallback(async (file) => {
     try {
       if (!file) return
       const text = await file.text()
@@ -164,10 +164,10 @@ const FavoritesProvider = ({ children }) => {
     } catch (error) {
       console.error('Error importing favorites:', error)
     }
-  }
+  }, [])
 
   // Simulate cloud sync (local persistence + timestamp)
-  const syncWithCloud = async () => {
+  const syncWithCloud = useCallback(async () => {
     try {
       setIsLoading(true)
       // Simulate delay
@@ -182,21 +182,21 @@ const FavoritesProvider = ({ children }) => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
   // Stats for UI
-  const getFavoritesStats = () => {
+  const getFavoritesStats = useMemo(() => {
     return {
-      total: getTotalFavorites(),
+      total: getTotalFavorites,
       channels: favorites.channels.length,
       articles: favorites.articles.length,
       games: favorites.games.length,
       products: favorites.products.length,
       gifts: favorites.gifts.length
     }
-  }
+  }, [favorites, getTotalFavorites])
 
-  const value = {
+  const value = useMemo(() => ({
     favorites,
     // state
     isLoading,
@@ -214,7 +214,7 @@ const FavoritesProvider = ({ children }) => {
     importFavorites,
     syncWithCloud,
     getFavoritesStats
-  }
+  }), [favorites, isLoading, lastSync, toggleFavorite, addToFavorites, removeFromFavorites, isFavorite, getFavorites, getTotalFavorites, clearFavorites, clearAllFavorites, exportFavorites, importFavorites, syncWithCloud, getFavoritesStats])
 
   return (
     <FavoritesContext.Provider value={value}>

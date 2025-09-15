@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Layout from '../../components/Layout'
 import { useAuth } from '../../contexts/AuthContext'
@@ -83,11 +83,21 @@ const ChessGame = () => {
   const [gameStarted, setGameStarted] = useState(false)
   const [proMode, setProMode] = useState(false)
 
-  // Timer effect
+  // Refs for timers cleanup
+  const gameTimerRef = useRef(null)
+  const aiMoveTimeoutRef = useRef(null)
+
+  // Timer effect with proper cleanup
   useEffect(() => {
+    // Clear existing timer
+    if (gameTimerRef.current) {
+      clearInterval(gameTimerRef.current)
+      gameTimerRef.current = null
+    }
+
     if (!gameStarted || gameStatus !== 'playing') return
     
-    const timer = setInterval(() => {
+    gameTimerRef.current = setInterval(() => {
       setGameTime(prev => {
         const newTime = { ...prev }
         if (currentPlayer === COLORS.WHITE) {
@@ -103,15 +113,48 @@ const ChessGame = () => {
       })
     }, 1000)
 
-    return () => clearInterval(timer)
-  }, [currentPlayer, gameStarted, gameStatus])
+    return () => {
+      if (gameTimerRef.current) {
+        clearInterval(gameTimerRef.current)
+        gameTimerRef.current = null
+      }
+    }
+  }, [currentPlayer, gameStarted, gameStatus, showToast])
 
-  // AI move effect
+  // AI move effect with timeout cleanup
   useEffect(() => {
+    // Clear existing AI timeout
+    if (aiMoveTimeoutRef.current) {
+      clearTimeout(aiMoveTimeoutRef.current)
+      aiMoveTimeoutRef.current = null
+    }
+
     if (currentPlayer === COLORS.BLACK && gameStatus === 'playing' && gameStarted) {
-      makeAIMove()
+      // Add small delay for AI move to make it feel more natural
+      aiMoveTimeoutRef.current = setTimeout(() => {
+        makeAIMove()
+      }, 500)
+    }
+
+    return () => {
+      if (aiMoveTimeoutRef.current) {
+        clearTimeout(aiMoveTimeoutRef.current)
+        aiMoveTimeoutRef.current = null
+      }
     }
   }, [currentPlayer, gameStatus, gameStarted])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (gameTimerRef.current) {
+        clearInterval(gameTimerRef.current)
+      }
+      if (aiMoveTimeoutRef.current) {
+        clearTimeout(aiMoveTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const isWhitePiece = (piece) => {
     return piece && '♔♕♖♗♘♙'.includes(piece)

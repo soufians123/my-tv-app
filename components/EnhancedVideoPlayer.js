@@ -168,10 +168,18 @@ const EnhancedVideoPlayer = React.memo(({
             lowLatencyMode: false, // تقليل الأولوية للتحميل المسبق
             maxBufferLength: 3, // تخزين مؤقت أقل للتحميل المسبق
             maxMaxBufferLength: 15,
-            manifestLoadingTimeOut: 2000,
-            fragLoadingTimeOut: 3000,
+            manifestLoadingTimeOut: 10000, // زيادة timeout للتحميل المسبق
+            manifestLoadingMaxRetry: 2,
+            manifestLoadingRetryDelay: 1500,
+            fragLoadingTimeOut: 8000, // زيادة timeout للأجزاء في التحميل المسبق
+            fragLoadingMaxRetry: 3,
             autoStartLoad: false, // عدم البدء التلقائي
-            maxLoadingDelay: 1000
+            maxLoadingDelay: 2000, // زيادة التأخير للتحميل المسبق
+            xhrSetup: function(xhr, url) {
+              xhr.withCredentials = false
+              xhr.timeout = 12000 // timeout مناسب للتحميل المسبق
+              xhr.setRequestHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+            }
           })
           
           preloadHls.loadSource(streamUrl)
@@ -206,20 +214,24 @@ const EnhancedVideoPlayer = React.memo(({
     })
   }, [selectedChannel, filteredChannels, channelCache])
 
-  // Get channel icon based on category
+  // Get channel icon based on category (updated for merged categories)
   const getChannelIcon = (category, size = 'w-8 h-8') => {
     const iconProps = { className: `${size} text-white` }
     
     switch (category) {
+      case 'إخبارية':
       case 'أخبار':
       case 'news':
         return <Globe {...iconProps} />
+      case 'ترفيهية':
       case 'ترفيه':
       case 'entertainment':
         return <Tv {...iconProps} />
+      case 'رياضية':
       case 'رياضة':
       case 'sports':
         return <Gamepad2 {...iconProps} />
+      case 'موسيقية':
       case 'موسيقى':
       case 'music':
         return <Music {...iconProps} />
@@ -229,24 +241,49 @@ const EnhancedVideoPlayer = React.memo(({
       case 'طبخ':
       case 'cooking':
         return <ChefHat {...iconProps} />
+      case 'وثائقية':
       case 'وثائقي':
       case 'documentary':
         return <BookOpen {...iconProps} />
+      case 'دينية':
+      case 'دين':
+      case 'religious':
+        return <BookOpen {...iconProps} />
+      case 'ثقافية':
+      case 'ثقافة':
+      case 'culture':
+        return <BookOpen {...iconProps} />
+      case 'تعليمية':
+      case 'education':
+        return <BookOpen {...iconProps} />
+      case 'عامة':
+      case 'general':
       default:
         return <Radio {...iconProps} />
     }
   }
 
-  // Get category color
+  // Get category color (updated for merged categories)
   const getCategoryColor = (category) => {
     switch (category) {
+      case 'إخبارية':
       case 'أخبار': return 'bg-red-500'
+      case 'رياضية':
       case 'رياضة': return 'bg-green-500'
+      case 'ترفيهية':
       case 'ترفيه': return 'bg-purple-500'
       case 'أطفال': return 'bg-pink-500'
+      case 'وثائقية':
       case 'وثائقي': return 'bg-blue-500'
+      case 'موسيقية':
       case 'موسيقى': return 'bg-orange-500'
       case 'طبخ': return 'bg-yellow-500'
+      case 'دينية':
+      case 'دين': return 'bg-indigo-500'
+      case 'ثقافية':
+      case 'ثقافة': return 'bg-teal-500'
+      case 'تعليمية': return 'bg-cyan-500'
+      case 'عامة': return 'bg-gray-600'
       default: return 'bg-gray-500'
     }
   }
@@ -255,6 +292,30 @@ const EnhancedVideoPlayer = React.memo(({
   const handleChannelSelect = useCallback((channel) => {
     if (onChannelSelect) {
       onChannelSelect(channel)
+    }
+    
+    // تشغيل القناة مباشرة عند النقر عليها
+    if (channel && channel.stream_url) {
+      setIsLoading(true)
+      setError(null)
+      
+      // إيقاف التشغيل الحالي إذا كان موجوداً
+      if (videoRef.current) {
+        videoRef.current.pause()
+        setIsPlaying(false)
+      }
+      
+      // تشغيل القناة الجديدة تلقائياً
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.play().catch(error => {
+            console.log('Auto-play failed:', error)
+            toast.error('فشل في تشغيل القناة تلقائياً')
+          })
+        }
+      }, 1000)
+      
+      toast.success(`تم تشغيل قناة ${channel.name_ar || channel.name}`)
     }
   }, [onChannelSelect, toast])
 
@@ -460,13 +521,13 @@ const EnhancedVideoPlayer = React.memo(({
             maxLoadingDelay: 2, // تقليل تأخير التحميل
             maxBufferLength: 15, // تقليل حجم التخزين المؤقت للاستجابة السريعة
             maxMaxBufferLength: 120, // حد أقصى أقل للذاكرة
-            manifestLoadingTimeOut: 5000, // تقليل timeout للاستجابة السريعة
-            manifestLoadingMaxRetry: 2,
-            manifestLoadingRetryDelay: 500,
-            levelLoadingTimeOut: 5000,
-            levelLoadingMaxRetry: 3,
-            fragLoadingTimeOut: 8000, // تقليل timeout للأجزاء
-            fragLoadingMaxRetry: 4,
+            manifestLoadingTimeOut: 15000, // زيادة timeout لتجنب أخطاء الشبكة البطيئة
+            manifestLoadingMaxRetry: 4, // زيادة عدد المحاولات
+            manifestLoadingRetryDelay: 1000, // زيادة التأخير بين المحاولات
+            levelLoadingTimeOut: 10000, // زيادة timeout للمستويات
+            levelLoadingMaxRetry: 4,
+            fragLoadingTimeOut: 12000, // زيادة timeout للأجزاء
+            fragLoadingMaxRetry: 6, // زيادة عدد محاولات الأجزاء
             // تحسينات إضافية للسرعة
             startLevel: -1, // البدء بأفضل جودة متاحة
             capLevelToPlayerSize: true, // تحسين الجودة حسب حجم المشغل
@@ -482,7 +543,7 @@ const EnhancedVideoPlayer = React.memo(({
             progressive: true,
             xhrSetup: function(xhr, url) {
               xhr.withCredentials = false
-              xhr.timeout = 8000 // timeout أقل للاستجابة السريعة
+              xhr.timeout = 15000 // timeout أطول لتجنب أخطاء الشبكة البطيئة
               xhr.setRequestHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
               xhr.setRequestHeader('Cache-Control', 'no-cache')
             }
@@ -564,9 +625,10 @@ const EnhancedVideoPlayer = React.memo(({
             })
             
             // Performance optimized preloading with priority delay
-            setTimeout(() => {
-              preloadAdjacentChannels()
-            }, 1500) // Delay to prioritize main channel loading
+  const preloadTimeoutRef = useRef(null)
+  preloadTimeoutRef.current = setTimeout(() => {
+    preloadAdjacentChannels()
+  }, 1500) // Delay to prioritize main channel loading
           })
           
           // معالجة انقطاع الاتصال وإعادة الاتصال
@@ -653,13 +715,15 @@ const EnhancedVideoPlayer = React.memo(({
             if (data.fatal) {
               switch (data.type) {
                 case Hls.ErrorTypes.NETWORK_ERROR:
-                  if (data.details === 'manifestLoadError') {
-                    console.log('خطأ في تحميل manifest، محاولة إعادة التحميل مع تأخير...')
-                    setError('خطأ في الاتصال بالخادم - جاري إعادة المحاولة...')
+                  if (data.details === 'manifestLoadError' || data.details === 'manifestLoadTimeOut') {
+                    console.log('خطأ في تحميل manifest أو انتهاء مهلة التحميل، محاولة إعادة التحميل مع تأخير...')
+                    setError('خطأ في الاتصال بالخادم أو انتهاء مهلة التحميل - جاري إعادة المحاولة...')
                     
-                    // إعادة المحاولة مع تأخير متدرج
-                    const retryDelay = Math.min(5000 * Math.pow(2, manifestErrorCount), 30000)
-                    setTimeout(() => {
+                    // إعادة المحاولة مع تأخير متدرج أطول للـ timeout errors
+                    const baseDelay = data.details === 'manifestLoadTimeOut' ? 8000 : 5000
+                    const retryDelay = Math.min(baseDelay * Math.pow(2, manifestErrorCount), 45000)
+                    const manifestRetryTimeoutRef = useRef(null)
+                    manifestRetryTimeoutRef.current = setTimeout(() => {
                       if (hls && !hls.destroyed && manifestErrorCount < maxManifestErrors) {
                         console.log(`محاولة إعادة تحميل manifest رقم ${manifestErrorCount + 1}/${maxManifestErrors}`)
                         hls.loadSource(streamUrl)
@@ -682,7 +746,8 @@ const EnhancedVideoPlayer = React.memo(({
                       if (retryCount < maxRetries * 2) { // مضاعفة المحاولات لأخطاء ABORTED
                         retryCount++
                         console.log(`إعادة محاولة ABORTED ${retryCount}/${maxRetries * 2}`)
-                        setTimeout(() => {
+                        const abortRetryTimeoutRef = useRef(null)
+                        abortRetryTimeoutRef.current = setTimeout(() => {
                           if (hls && !hls.destroyed) {
                             hls.startLoad()
                           }
@@ -844,20 +909,46 @@ const EnhancedVideoPlayer = React.memo(({
             }, 10000) // فحص كل 10 ثوان
           }
           
-          // مراقبة حالة الشبكة المحسنة
-          const handleOnline = () => {
-            console.log('تم استعادة الاتصال بالإنترنت')
-            reconnectAttempts = 0
-            setError(null)
-            if (hls && !hls.destroyed) {
-              hls.startLoad()
+          // مراقبة حالة الشبكة المحسنة مع فحص الاتصال
+          const checkNetworkConnectivity = async () => {
+            try {
+              const response = await fetch('https://www.google.com/favicon.ico', {
+                method: 'HEAD',
+                mode: 'no-cors',
+                cache: 'no-cache',
+                timeout: 5000
+              })
+              return true
+            } catch {
+              return navigator.onLine
             }
-            startHealthCheck()
+          }
+          
+          const handleOnline = async () => {
+            console.log('تم استعادة الاتصال بالإنترنت')
+            const isConnected = await checkNetworkConnectivity()
+            if (isConnected) {
+              reconnectAttempts = 0
+              setError(null)
+              if (hls && !hls.destroyed) {
+                // إعادة تحميل المصدر بالكامل عند استعادة الاتصال
+                try {
+                  hls.stopLoad()
+                  hls.detachMedia()
+                  hls.loadSource(streamUrl)
+                  hls.attachMedia(video)
+                  console.log('تم إعادة تحميل البث بعد استعادة الاتصال')
+                } catch (error) {
+                  console.error('خطأ في إعادة تحميل البث:', error)
+                }
+              }
+              startHealthCheck()
+            }
           }
           
           const handleOffline = () => {
             console.log('انقطع الاتصال بالإنترنت')
-            setError('لا يوجد اتصال بالإنترنت')
+            setError('لا يوجد اتصال بالإنترنت - تحقق من الشبكة')
             if (healthCheckInterval) {
               clearInterval(healthCheckInterval)
             }
@@ -874,6 +965,9 @@ const EnhancedVideoPlayer = React.memo(({
           hls.destroy = () => {
             if (reconnectTimer) clearTimeout(reconnectTimer)
             if (healthCheckInterval) clearInterval(healthCheckInterval)
+            if (preloadTimeoutRef.current) clearTimeout(preloadTimeoutRef.current)
+            if (manifestRetryTimeoutRef.current) clearTimeout(manifestRetryTimeoutRef.current)
+            if (abortRetryTimeoutRef.current) clearTimeout(abortRetryTimeoutRef.current)
             window.removeEventListener('online', handleOnline)
             window.removeEventListener('offline', handleOffline)
             originalDestroy()
@@ -1599,18 +1693,18 @@ const EnhancedVideoPlayer = React.memo(({
         </div>
       </div>
       {/* Channels List Section */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-slate-700/20 overflow-hidden">
         {/* Search and Filter Header */}
-        <div className="p-4 sm:p-6 border-b border-gray-200">
+        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-slate-700">
           <div className="flex flex-col space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
               <div>
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">قائمة القنوات</h2>
-                <p className="text-gray-600 text-xs sm:text-sm">{filteredChannels.length} من {channels.length} قناة</p>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">قائمة القنوات</h2>
+                <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">{filteredChannels.length} من {channels.length} قناة</p>
               </div>
               
               {/* Quick Stats */}
-              <div className="flex items-center space-x-4 rtl:space-x-reverse text-xs sm:text-sm text-gray-500">
+              <div className="flex items-center space-x-4 rtl:space-x-reverse text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                 <span className="flex items-center space-x-1 rtl:space-x-reverse">
                   <Tv className="w-4 h-4" />
                   <span>{channels.length}</span>
@@ -1632,10 +1726,10 @@ const EnhancedVideoPlayer = React.memo(({
                   placeholder="البحث في القنوات..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-2.5 ltr:pr-10 rtl:pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white/70 backdrop-blur-sm"
+                  className="w-full px-4 py-2.5 ltr:pr-10 rtl:pl-10 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white/70 dark:bg-slate-800/70 dark:text-gray-100 backdrop-blur-sm"
                 />
                 <div className="absolute ltr:right-3 rtl:left-3 top-1/2 transform -translate-y-1/2">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
@@ -1646,7 +1740,7 @@ const EnhancedVideoPlayer = React.memo(({
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white/70 backdrop-blur-sm appearance-none"
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white/70 dark:bg-slate-800/70 dark:text-gray-100 backdrop-blur-sm appearance-none"
                 >
                   <option value="all">جميع الفئات ({channels.length})</option>
                   {availableCategories.map((category, index) => {
@@ -1659,7 +1753,7 @@ const EnhancedVideoPlayer = React.memo(({
                   })}
                 </select>
                 <div className="absolute ltr:right-3 rtl:left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                  <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                 </div>
               </div>
             </div>
@@ -1680,10 +1774,10 @@ const EnhancedVideoPlayer = React.memo(({
                 onClick={() => handleChannelSelect(channel)}
               >
                 {/* Channel Card - Simplified */}
-                <div className="bg-gradient-to-br from-white to-gray-50 p-3 h-full min-h-[100px] sm:min-h-[120px] flex flex-col items-center justify-center text-center">
+                <div className="bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-700 p-3 h-full min-h-[100px] sm:min-h-[120px] flex flex-col items-center justify-center text-center">
                   {/* Channel Logo - Enlarged */}
                   <div className="flex flex-col items-center mb-2">
-                    <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-lg sm:rounded-xl overflow-hidden bg-white shadow-md border border-gray-200 flex items-center justify-center mb-2">
+                    <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-lg sm:rounded-xl overflow-hidden bg-white dark:bg-slate-700 shadow-md border border-gray-200 dark:border-slate-600 flex items-center justify-center mb-2">
                       {channel.logo_url ? (
                         <LazyImage 
                           src={channel.logo_url} 
@@ -1709,7 +1803,7 @@ const EnhancedVideoPlayer = React.memo(({
 
                   {/* Channel Name Only */}
                   <div className="flex-1 flex flex-col items-center justify-center text-center">
-                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base leading-tight line-clamp-2" title={channel.name_ar || channel.name}>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base leading-tight line-clamp-2" title={channel.name_ar || channel.name}>
                       {channel.name_ar || channel.name}
                     </h3>
                   </div>
@@ -1717,8 +1811,8 @@ const EnhancedVideoPlayer = React.memo(({
                   {/* Play Overlay */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="bg-white/90 backdrop-blur-sm rounded-full p-1 sm:p-2">
-                        <Play className="w-3 h-3 sm:w-4 sm:h-4 text-gray-900 fill-current" />
+                      <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-full p-1 sm:p-2">
+                        <Play className="w-3 h-3 sm:w-4 sm:h-4 text-gray-900 dark:text-gray-100 fill-current" />
                       </div>
                     </div>
                   </div>
@@ -1738,9 +1832,9 @@ const EnhancedVideoPlayer = React.memo(({
           {/* No Channels Found */}
           {filteredChannels.length === 0 && (
             <div className="text-center py-12">
-              <Tv className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">لا توجد قنوات</h3>
-              <p className="text-gray-600">لم يتم العثور على قنوات تطابق معايير البحث</p>
+              <Tv className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">لا توجد قنوات</h3>
+              <p className="text-gray-600 dark:text-gray-300">لم يتم العثور على قنوات تطابق معايير البحث</p>
             </div>
           )}
         </div>

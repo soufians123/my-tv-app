@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحديث بيانات القنوات</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .success {
+            color: #4CAF50;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        .error {
+            color: #f44336;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        .info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: right;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .refresh-btn {
+            background: #2196F3;
+        }
+        .refresh-btn:hover {
+            background: #1976D2;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 تحديث بيانات القنوات</h1>
+        <div id="status">جاري التحقق من البيانات...</div>
+        <div class="info" id="info"></div>
+        <div>
+            <button onclick="refreshChannels()" class="refresh-btn">🔄 تحديث البيانات</button>
+            <button onclick="clearAndReload()">🗑️ مسح ذاكرة التخزين</button>
+            <button onclick="goToChannels()">📺 انتقل إلى القنوات</button>
+        </div>
+    </div>
+
+    <script>
+        let isLoading = false;
+
+        // فحص البيانات الحالية
+        function checkCurrentData() {
+            try {
+                const stored = localStorage.getItem('zomiga_channels');
+                if (stored) {
+                    const channels = JSON.parse(stored);
+                    const categories = {};
+                    channels.forEach(channel => {
+                        categories[channel.category] = (categories[channel.category] || 0) + 1;
+                    });
+                    
+                    document.getElementById('info').innerHTML = `
+                        <h3>📊 البيانات الحالية:</h3>
+                        <p><strong>عدد القنوات:</strong> ${channels.length}</p>
+                        <p><strong>توزيع الفئات:</strong></p>
+                        <ul style="text-align: right; list-style: none; padding: 0;">
+                            ${Object.entries(categories)
+                                .sort(([,a], [,b]) => b - a)
+                                .map(([cat, count]) => `<li>• ${cat}: ${count} قناة</li>`)
+                                .join('')}
+                        </ul>
+                    `;
+                    
+                    if (channels.length >= 50) {
+                        document.getElementById('status').innerHTML = 
+                            '<div class="success">✅ البيانات محدثة ومتوفرة!</div>';
+                    } else {
+                        document.getElementById('status').innerHTML = 
+                            '<div class="error">⚠️ البيانات قديمة أو ناقصة - يُنصح بالتحديث</div>';
+                    }
+                } else {
+                    document.getElementById('status').innerHTML = 
+                        '<div class="error">❌ لا توجد بيانات محفوظة</div>';
+                    document.getElementById('info').innerHTML = 
+                        '<p>لم يتم العثور على بيانات القنوات في ذاكرة التخزين المحلية.</p>';
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = 
+                    '<div class="error">❌ خطأ في قراءة البيانات</div>';
+                console.error('خطأ:', error);
+            }
+        }
+
+        // تحديث البيانات من الخادم
+        async function refreshChannels() {
+            if (isLoading) return;
+            
+            isLoading = true;
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '<div>جاري تحميل البيانات من الخادم... <span class="loading"></span></div>';
+            
+            try {
+                const response = await fetch('/api/channels/load-from-file');
+                const data = await response.json();
+                
+                if (data.success && data.channels) {
+                    localStorage.setItem('zomiga_channels', JSON.stringify(data.channels));
+                    localStorage.setItem('zomiga_channels_version', Date.now().toString());
+                    
+                    statusDiv.innerHTML = 
+                        `<div class="success">✅ تم تحديث ${data.channels.length} قناة بنجاح!</div>`;
+                    
+                    setTimeout(checkCurrentData, 1000);
+                } else {
+                    statusDiv.innerHTML = 
+                        '<div class="error">❌ فشل في تحميل البيانات من الخادم</div>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = 
+                    '<div class="error">❌ خطأ في الاتصال بالخادم</div>';
+                console.error('خطأ:', error);
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // مسح ذاكرة التخزين وإعادة التحميل
+        function clearAndReload() {
+            localStorage.removeItem('zomiga_channels');
+            localStorage.removeItem('zomiga_channels_version');
+            document.getElementById('status').innerHTML = 
+                '<div class="success">✅ تم مسح ذاكرة التخزين</div>';
+            setTimeout(() => {
+                refreshChannels();
+            }, 1000);
+        }
+
+        // الانتقال إلى صفحة القنوات
+        function goToChannels() {
+            window.location.href = '/channels';
+        }
+
+        // فحص البيانات عند تحميل الصفحة
+        checkCurrentData();
+    </script>
+</body>
+</html>

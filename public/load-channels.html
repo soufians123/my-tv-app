@@ -1,15 +1,68 @@
-// خدمة إدارة القنوات التلفزيونية
-// تستخدم Supabase لحفظ البيانات ومشاركتها بين الصفحات
 
-import { emitChannelEvent, CHANNEL_EVENTS } from './channelEvents'
-import { withCache, cacheInvalidate, cacheGet, cacheSet } from './apiCache'
-import { supabaseChannelsService } from './supabaseChannelsService'
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحميل بيانات القنوات</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .success {
+            color: #4CAF50;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        .info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 تحميل بيانات القنوات</h1>
+        <div id="status">جاري تحميل البيانات...</div>
+        <div class="info">
+            <p><strong>عدد القنوات:</strong> 55</p>
+            <p><strong>آخر تحديث:</strong> ٢٣‏/٣‏/١٤٤٧ هـ، ٧:٢٥:٣٩ م</p>
+        </div>
+        <button onclick="goToChannels()">انتقل إلى صفحة القنوات</button>
+        <button onclick="location.reload()">إعادة تحميل</button>
+    </div>
 
-const CHANNELS_STORAGE_KEY = 'zomiga_channels'
-const CHANNELS_VERSION_KEY = 'zomiga_channels_version'
-
-// البيانات الافتراضية للقنوات
-const defaultChannels = [
+    <script>
+        // بيانات القنوات
+        const channelsData = [
   {
     "status": "active",
     "viewers": 211918,
@@ -1003,484 +1056,36 @@ const defaultChannels = [
     "id": 59,
     "lastChecked": "2025-09-15"
   }
-]
-
-// فئات القنوات المتاحة
-export const channelCategories = [
-  'أطفال',
-  'أفلام ومسلسلات',
-  'إخبارية',
-  'تعليمية',
-  'دينية',
-  'رياضية',
-  'عامة',
-  'قنوات مغربية',
-  'موسيقية',
-  'وثائقية'
-]
-
-// اللغات المتاحة
-export const channelLanguages = [
-  'العربية'
-]
-
-// جودة البث المتاحة
-export const channelQualities = [
-  'HD',
-  'SD',
-  '4K',
-  'FHD'
-]
-
-// البلدان المتاحة
-export const channelCountries = [
-  'أفغانستان',
-  'إيران',
-  'الأردن',
-  'الإمارات',
-  'الجزائر',
-  'السعودية',
-  'العراق',
-  'المغرب',
-  'غير محدد',
-  'فلسطين',
-  'قطر',
-  'لبنان',
-  'ليبيا',
-  'مصر'
-]
-
-// تحديث إصدار البيانات
-const updateVersion = () => {
-  const version = Date.now().toString()
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(CHANNELS_VERSION_KEY, version)
-  }
-  return version
-}
-
-// الحصول على إصدار البيانات
-export const getChannelsVersion = () => {
-  if (typeof window === 'undefined') return null
-  return localStorage.getItem(CHANNELS_VERSION_KEY)
-}
-
-// تحميل القنوات من localStorage مع caching
-
-// تحميل البيانات من ملف zomiga_channels.json
-const loadChannelsFromFile = async () => {
-  if (typeof window !== 'undefined') {
-    try {
-      const response = await fetch('/api/channels/load-from-file');
-      if (response.ok) {
-        const data = await response.json();
-        return data.channels || defaultChannels;
-      }
-    } catch (error) {
-      console.error('خطأ في تحميل القنوات من الملف:', error);
-    }
-  }
-  return defaultChannels;
-};
-const _loadChannels = async () => {
-  if (typeof window === 'undefined') return defaultChannels
-  
-  try {
-    // محاولة تحميل من Supabase أولاً
-    const supabaseChannels = await supabaseChannelsService.getAllChannels()
-    if (supabaseChannels && supabaseChannels.length > 0) {
-      return supabaseChannels
-    }
-    
-    // إذا لم توجد بيانات في Supabase، حمل من localStorage كنسخة احتياطية
-    const stored = localStorage.getItem(CHANNELS_STORAGE_KEY)
-    if (stored) {
-      const channels = JSON.parse(stored)
-      if (Array.isArray(channels) && channels.length > 10) {
-        return channels
-      }
-    }
-    
-    // إذا لم توجد بيانات كافية، حمل من الملف
-    const fileChannels = await loadChannelsFromFile()
-    if (fileChannels && fileChannels.length > 0) {
-      saveChannels(fileChannels)
-      return fileChannels
-    }
-  } catch (error) {
-    console.error('خطأ في تحميل القنوات:', error)
-  }
-  
-  // كحل أخير، استخدم البيانات الافتراضية
-  saveChannels(defaultChannels)
-  return defaultChannels
-}
-
-export const loadChannels = withCache(_loadChannels, 2 * 60 * 1000) // 2 دقائق
-
-// حفظ القنوات في Supabase
-export const saveChannels = async (channels) => {
-  // في بيئة الخادم، نعتبر الحفظ ناجحاً مؤقتاً
-  if (typeof window === 'undefined') {
-    console.log('حفظ القنوات في بيئة الخادم - سيتم الحفظ في المتصفح')
-    return true
-  }
-  
-  try {
-    // حفظ في Supabase أولاً
-    await supabaseChannelsService.saveAllChannels(channels)
-    
-    // حفظ في localStorage كنسخة احتياطية
-    localStorage.setItem(CHANNELS_STORAGE_KEY, JSON.stringify(channels))
-    updateVersion()
-    return true
-  } catch (error) {
-    console.error('خطأ في حفظ القنوات في localStorage:', error)
-    return false
-  }
-}
-
-// إضافة قناة جديدة
-// فحص وجود قناة مكررة بناءً على الاسم أو الرابط
-export const isDuplicateChannel = (channelData, existingChannels = null) => {
-  const channels = existingChannels || loadChannels()
-  
-  // التأكد من وجود البيانات المطلوبة
-  if (!channelData || !channelData.name || !channelData.url) {
-    return false
-  }
-  
-  return channels.some(channel => {
-    // التأكد من وجود البيانات في القناة الموجودة
-    if (!channel || !channel.name || !channel.url) {
-      return false
-    }
-    
-    return channel.name.toLowerCase().trim() === channelData.name.toLowerCase().trim() ||
-           channel.url.toLowerCase().trim() === channelData.url.toLowerCase().trim()
-  })
-}
-
-// إضافة قناة جديدة مع فحص التكرار
-export const addChannel = async (channelData) => {
-  const channels = await loadChannels()
-  
-  // فحص التكرار
-  if (isDuplicateChannel(channelData, channels)) {
-    console.warn(`القناة "${channelData.name}" موجودة مسبقاً`)
-    return { error: 'duplicate', message: `القناة "${channelData.name}" موجودة مسبقاً` }
-  }
-  
-  const newChannel = {
-    ...channelData,
-    id: Date.now(), // استخدام timestamp كمعرف فريد
-    viewers: channelData.viewers || 0,
-    favorites: channelData.favorites || 0,
-    rating: channelData.rating || 0,
-    createdAt: channelData.createdAt || new Date().toISOString().split('T')[0],
-    lastUpdated: new Date().toISOString().split('T')[0]
-  }
-  
-  try {
-    // إضافة القناة في Supabase أولاً
-    const supabaseChannel = await supabaseChannelsService.addChannel(newChannel)
-    
-    // إرسال حدث إضافة القناة
-    emitChannelEvent(CHANNEL_EVENTS.ADDED, supabaseChannel)
-    
-    return supabaseChannel
-  } catch (error) {
-    console.error('خطأ في إضافة القناة:', error)
-    return null
-  }
-}
-
-// إضافة قنوات متعددة مع فحص التكرار
-export const addMultipleChannels = (channelsArray) => {
-  console.log('addMultipleChannels called with:', channelsArray)
-  const existingChannels = loadChannels()
-  console.log('Existing channels count:', existingChannels.length)
-  const results = {
-    added: [],
-    duplicates: [],
-    errors: []
-  }
-  
-  channelsArray.forEach((channelData, index) => {
-    try {
-      // فحص صحة البيانات الأساسية
-      if (!channelData || !channelData.name || !channelData.url) {
-        results.errors.push({
-          index: index + 1,
-          name: channelData?.name || 'غير محدد',
-          error: 'بيانات القناة غير مكتملة (الاسم والرابط مطلوبان)'
-        })
-        return
-      }
-      
-      // فحص التكرار
-      if (isDuplicateChannel(channelData, existingChannels)) {
-        results.duplicates.push({
-          index: index + 1,
-          name: channelData.name,
-          message: `القناة "${channelData.name}" موجودة مسبقاً`
-        })
-        return
-      }
-      
-      const newChannel = {
-        ...channelData,
-        id: Date.now() + index, // معرف فريد لكل قناة
-        viewers: channelData.viewers || 0,
-        favorites: channelData.favorites || 0,
-        rating: channelData.rating || 0,
-        createdAt: channelData.createdAt || new Date().toISOString().split('T')[0],
-        lastUpdated: new Date().toISOString().split('T')[0]
-      }
-      
-      existingChannels.push(newChannel)
-      results.added.push(newChannel)
-      
-    } catch (error) {
-      results.errors.push({
-        index: index + 1,
-        name: channelData.name || 'غير محدد',
-        error: error.message
-      })
-    }
-  })
-  
-  // حفظ القنوات الجديدة
-  if (results.added.length > 0) {
-    const success = saveChannels(existingChannels)
-    if (success) {
-      // إرسال أحداث إضافة القنوات
-      results.added.forEach(channel => {
-        emitChannelEvent(CHANNEL_EVENTS.ADDED, channel)
-      })
-    } else {
-      results.errors.push({ message: 'فشل في حفظ القنوات' })
-    }
-  }
-  
-  console.log('Final results:', results)
-  return results
-}
-
-// تحديث قناة موجودة - يستخدم Supabase أولاً ثم localStorage كنسخة احتياطية
-export const updateChannel = async (channelId, updates) => {
-  try {
-    const channels = await loadChannels()
-    const channelIndex = channels.findIndex(c => c.id === channelId)
-    
-    if (channelIndex === -1) return null
-    
-    const updatedChannel = {
-      ...channels[channelIndex],
-      ...updates,
-      lastUpdated: new Date().toISOString().split('T')[0]
-    }
-    
-    // تحديث القناة في Supabase
-    const supabaseChannel = await supabaseChannelsService.updateChannel(channelId, updatedChannel)
-    
-    if (supabaseChannel) {
-      // إرسال حدث تحديث القناة
-      const eventType = updates.status ? CHANNEL_EVENTS.STATUS_CHANGED : CHANNEL_EVENTS.UPDATED
-      emitChannelEvent(eventType, supabaseChannel)
-      return supabaseChannel
-    }
-    
-    return null
-  } catch (error) {
-    console.error('خطأ في تحديث القناة:', error)
-    return null
-  }
-}
-
-// حذف قناة - يستخدم Supabase أولاً ثم localStorage كنسخة احتياطية
-export const deleteChannel = async (channelId) => {
-  try {
-    const channels = await loadChannels()
-    const channelToDelete = channels.find(c => c.id === channelId)
-    
-    if (!channelToDelete) {
-      return false // القناة غير موجودة
-    }
-    
-    // حذف القناة من Supabase
-    const success = await supabaseChannelsService.deleteChannel(channelId)
-    
-    if (success) {
-      // إرسال حدث حذف القناة
-      emitChannelEvent(CHANNEL_EVENTS.DELETED, { id: channelId, name: channelToDelete.name })
-      return true
-    }
-    
-    return false
-  } catch (error) {
-    console.error('خطأ في حذف القناة:', error)
-    return false
-  }
-  
-  return success
-}
-
-// البحث في القنوات
-export const searchChannels = (query, filters = {}) => {
-  const channels = loadChannels()
-  let filtered = channels
-  
-  // البحث النصي
-  if (query && query.trim()) {
-    const searchTerm = query.toLowerCase().trim()
-    filtered = filtered.filter(channel => 
-      channel.name.toLowerCase().includes(searchTerm) ||
-      channel.category.toLowerCase().includes(searchTerm) ||
-      channel.country.toLowerCase().includes(searchTerm) ||
-      (channel.description && channel.description.toLowerCase().includes(searchTerm))
-    )
-  }
-  
-  // فلترة الحالة
-  if (filters.status && filters.status !== 'all') {
-    filtered = filtered.filter(channel => channel.status === filters.status)
-  }
-  
-  // فلترة الفئة
-  if (filters.category && filters.category !== 'all') {
-    filtered = filtered.filter(channel => channel.category === filters.category)
-  }
-  
-  // فلترة البلد
-  if (filters.country && filters.country !== 'all') {
-    filtered = filtered.filter(channel => channel.country === filters.country)
-  }
-  
-  // فلترة اللغة
-  if (filters.language && filters.language !== 'all') {
-    filtered = filtered.filter(channel => channel.language === filters.language)
-  }
-  
-  return filtered
-}
-
-// الحصول على قناة بالمعرف
-const _getChannelById = (channelId) => {
-  const channels = _loadChannels()
-  return channels.find(c => c.id === channelId) || null
-}
-
-export const getChannelById = withCache(_getChannelById, 5 * 60 * 1000) // 5 دقائق
-
-// الحصول على القنوات النشطة فقط
-const _getActiveChannels = () => {
-  const channels = _loadChannels()
-  return channels.filter(c => c.status === 'active')
-}
-
-export const getActiveChannels = withCache(_getActiveChannels, 3 * 60 * 1000) // 3 دقائق
-
-// الحصول على إحصائيات القنوات
-const _getChannelsStats = () => {
-  const channels = _loadChannels()
-  
-  return {
-    total: channels.length,
-    active: channels.filter(c => c.status === 'active').length,
-    inactive: channels.filter(c => c.status === 'inactive').length,
-    byCategory: channelCategories.reduce((acc, category) => {
-      acc[category] = channels.filter(c => c.category === category).length
-      return acc
-    }, {}),
-    byCountry: channelCountries.reduce((acc, country) => {
-      acc[country] = channels.filter(c => c.country === country).length
-      return acc
-    }, {})
-  }
-}
-
-export const getChannelsStats = withCache(_getChannelsStats, 5 * 60 * 1000) // 5 دقائق
-
-// تصدير البيانات
-export const exportChannels = () => {
-  const channels = loadChannels()
-  const dataStr = JSON.stringify(channels, null, 2)
-  const dataBlob = new Blob([dataStr], { type: 'application/json' })
-  
-  const url = URL.createObjectURL(dataBlob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `zomiga-channels-${new Date().toISOString().split('T')[0]}.json`
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
-}
-
-// استيراد البيانات
-export const importChannels = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    
-    reader.onload = (e) => {
-      try {
-        const channels = JSON.parse(e.target.result)
-        if (Array.isArray(channels)) {
-          const success = saveChannels(channels)
-          resolve(success ? channels : null)
-        } else {
-          reject(new Error('تنسيق الملف غير صحيح'))
+];
+        
+        // تحميل البيانات إلى localStorage
+        try {
+            localStorage.setItem('zomiga_channels', JSON.stringify(channelsData));
+            localStorage.setItem('zomiga_channels_version', Date.now().toString());
+            
+            document.getElementById('status').innerHTML = 
+                '<div class="success">✅ تم تحميل البيانات بنجاح!</div>';
+            
+            console.log('تم تحميل', channelsData.length, 'قناة إلى localStorage');
+            
+            // إحصائيات الفئات
+            const categories = {};
+            channelsData.forEach(channel => {
+                categories[channel.category] = (categories[channel.category] || 0) + 1;
+            });
+            
+            console.log('توزيع الفئات:', categories);
+            
+        } catch (error) {
+            console.error('خطأ في تحميل البيانات:', error);
+            document.getElementById('status').innerHTML = 
+                '<div style="color: #f44336;">❌ خطأ في تحميل البيانات</div>';
         }
-      } catch (error) {
-        reject(new Error('خطأ في قراءة الملف'))
-      }
-    }
-    
-    reader.onerror = () => reject(new Error('خطأ في قراءة الملف'))
-    reader.readAsText(file)
-  })
-}
-
-// إعادة تعيين البيانات للافتراضية
-export const resetToDefault = () => {
-  return saveChannels(defaultChannels)
-}
-
-// مراقب التغييرات (للاستخدام في المكونات)
-export const createChannelsWatcher = (callback) => {
-  if (typeof window === 'undefined') return () => {}
+        
+        function goToChannels() {
+            window.location.href = '/channels';
+        }
+    </script>
+</body>
+</html>
   
-  let lastVersion = getChannelsVersion()
-  
-  const checkForChanges = () => {
-    const currentVersion = getChannelsVersion()
-    if (currentVersion !== lastVersion) {
-      lastVersion = currentVersion
-      // إبطال الـ cache عند تغيير البيانات
-      invalidateChannelsCache()
-      callback(loadChannels())
-    }
-  }
-  
-  const interval = setInterval(checkForChanges, 1000) // فحص كل ثانية
-  
-  return () => clearInterval(interval) // وظيفة إلغاء المراقبة
-}
-
-// وظائف إدارة الـ cache للقنوات
-export const invalidateChannelsCache = () => {
-  cacheInvalidate('_loadChannels')
-  cacheInvalidate('_getChannelById')
-  cacheInvalidate('_getActiveChannels')
-  cacheInvalidate('_getChannelsStats')
-}
-
-// تحديث الـ cache عند تعديل البيانات
-export const refreshChannelsCache = () => {
-  invalidateChannelsCache()
-  // إعادة تحميل البيانات لملء الـ cache
-  loadChannels()
-  getActiveChannels()
-  getChannelsStats()
-}

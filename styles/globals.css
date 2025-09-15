@@ -1189,6 +1189,49 @@
     .text-muted {
       @apply text-gray-300;
     }
+    
+    .heading-secondary {
+      @apply text-gray-100;
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  }
+  
+  /* Enhanced Dark Mode Classes */
+  .dark .modern-card {
+    @apply bg-gray-800/90 border-gray-700/50 text-white;
+  }
+  
+  .dark .modern-button {
+    @apply text-white;
+  }
+  
+  .dark .modern-input {
+    @apply bg-gray-800 border-gray-600 text-white placeholder-gray-400;
+  }
+  
+  .dark .glass-morphism {
+    @apply bg-gray-800/20 border-gray-600/30;
+  }
+  
+  .dark .text-muted {
+    @apply text-gray-300;
+  }
+  
+  .dark .heading-secondary {
+    @apply text-gray-100;
+  }
+  
+  .dark .gradient-text {
+    background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   /* High contrast mode support */

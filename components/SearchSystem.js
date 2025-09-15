@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Search, Filter, X, ChevronDown, Star, Eye, MapPin, Tv, Gamepad2, FileText, ShoppingBag } from 'lucide-react'
 import { useToast } from './ToastSystem'
 import { Button, Input, Card, Badge } from './ui/unified-components'
@@ -79,12 +79,12 @@ const SearchSystem = ({ data, onResults, placeholder = "البحث...", type = "
     onResults(filteredResults)
   }, [filteredResults, onResults])
 
-  const handleFilterChange = (key, value) => {
+  const handleFilterChange = useCallback((key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }))
     showToast(`تم تطبيق فلتر ${key}`, 'info')
-  }
+  }, [showToast])
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFilters({
       category: '',
       country: '',
@@ -93,7 +93,7 @@ const SearchSystem = ({ data, onResults, placeholder = "البحث...", type = "
     })
     setSearchQuery('')
     showToast('تم مسح جميع الفلاتر', 'success')
-  }
+  }, [showToast])
 
   const getTypeIcon = () => {
     switch (type) {

@@ -112,7 +112,7 @@ const ChannelsPage = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
         <div className="responsive-padding py-8 space-y-8">
           {/* Modern Header */}
           <div className="modern-card p-8 text-center">
@@ -122,15 +122,15 @@ const ChannelsPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h1 className="heading-secondary gradient-text mb-4">مشغل القنوات التلفزيونية</h1>
-              <p className="text-xl text-muted max-w-3xl mx-auto leading-relaxed">
+              <h1 className="heading-secondary gradient-text dark:text-gray-200 mb-4">مشغل القنوات التلفزيونية</h1>
+              <p className="text-xl text-muted dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
                 استمتع بمشاهدة قنواتك المفضلة مع تجربة مشاهدة محسنة وجودة عالية
               </p>
             </div>
             {channels.length > 0 && (
               <div className="glass-morphism inline-flex items-center gap-3 px-6 py-3 rounded-2xl">
                 <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="font-semibold text-gray-700">{channels.length} قناة متاحة</span>
+                <span className="font-semibold text-gray-700 dark:text-gray-200">{channels.length} قناة متاحة</span>
               </div>
             )}
           </div>

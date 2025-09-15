@@ -1,0 +1,70 @@
+{
+  "date": "2025-09-15T18:19:34.928Z",
+  "totalChannels": 59,
+  "workingChannels": 55,
+  "brokenChannels": 4,
+  "recategorizedChannels": 7,
+  "deletedChannels": [
+    {
+      "name": "2M Monde",
+      "url": "https://cdn-globecast.akamaized.net/live/eds/2m_monde/hls_video_ts_tuhawxpiemz257adfc/2m_monde.m3u8",
+      "error": "HTTP 403",
+      "category": "عامة"
+    },
+    {
+      "name": "Abu Dhabi TV",
+      "url": "http://dvrfl05.bozztv.com/gin-abudhabitv/index.m3u8",
+      "error": "HTTP 403",
+      "category": "عامة"
+    },
+    {
+      "name": "Access Sacramento Channel 18",
+      "url": "https://reflect-access-sacramento.cablecast.tv/live-8/live/live.m3u8",
+      "error": "HTTP 503",
+      "category": "عامة"
+    },
+    {
+      "name": "Aflam TV",
+      "url": "https://fl1002.bozztv.com/ga-aflamtv7/index.m3u8",
+      "error": "HTTP 404",
+      "category": "أفلام"
+    }
+  ],
+  "recategorizations": [
+    {
+      "name": "2M",
+      "oldCategory": "عامة",
+      "newCategory": "قنوات مغربية"
+    },
+    {
+      "name": "2M Monde +1 (1080p)",
+      "oldCategory": "عامة",
+      "newCategory": "قنوات مغربية"
+    },
+    {
+      "name": "Aflam (1080p)",
+      "oldCategory": "أفلام",
+      "newCategory": "أفلام ومسلسلات"
+    },
+    {
+      "name": "Al Arabiya Business (1080p)",
+      "oldCategory": "أعمال",
+      "newCategory": "عامة"
+    },
+    {
+      "name": "Al Arabiya Programs (1080p)",
+      "oldCategory": "Documentary;News",
+      "newCategory": "إخبارية"
+    },
+    {
+      "name": "Al Ayyam TV",
+      "oldCategory": "غير محدد",
+      "newCategory": "عامة"
+    },
+    {
+      "name": "Al Madina (720p)",
+      "oldCategory": "غير محدد",
+      "newCategory": "عامة"
+    }
+  ]
+}

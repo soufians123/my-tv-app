@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext({})
@@ -17,6 +17,14 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const [authError, setAuthError] = useState(null)
   const [isStable, setIsStable] = useState(false) // Track auth stability
+  
+  // Timeout references for cleanup
+  const fallbackTimeoutRef = useRef(null)
+  const profileTimeoutRef = useRef(null)
+  const authChangeTimeoutRef = useRef(null)
+  const signUpTimeoutRef = useRef(null)
+  const signInTimeoutRef = useRef(null)
+  const retryTimeoutRef = useRef(null)
 
   // Helper function to save user data to localStorage
   const saveUserToStorage = (userData) => {
@@ -54,7 +62,7 @@ export const AuthProvider = ({ children }) => {
     }
     
     // Fallback timeout to prevent infinite loading - increased timeout and better handling
-    const fallbackTimeout = setTimeout(() => {
+    fallbackTimeoutRef.current = setTimeout(() => {
       if (mounted && loading) {
         console.warn('⏰ Auth initialization timeout - keeping current state')
         // Don't reset user to null if we already have a session or stored data
@@ -72,9 +80,10 @@ export const AuthProvider = ({ children }) => {
         console.log('🔍 AuthContext: Getting initial session...')
         // Add timeout to the auth request with retry mechanism
         const authPromise = supabase.auth.getSession()
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Auth timeout')), 8000)
-        )
+        const timeoutPromise = new Promise((_, reject) => {
+          const timeoutId = setTimeout(() => reject(new Error('Auth timeout')), 8000)
+          return timeoutId
+        })
         
         const { data: { session }, error } = await Promise.race([authPromise, timeoutPromise])
         console.log('📋 AuthContext: Session result:', { session: !!session, error: !!error })
@@ -102,9 +111,9 @@ export const AuthProvider = ({ children }) => {
                 .eq('id', userData.id)
                 .single()
               
-              const profileTimeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Profile timeout')), 10000)
-              )
+              const profileTimeoutPromise = new Promise((_, reject) => {
+                profileTimeoutRef.current = setTimeout(() => reject(new Error('Profile timeout')), 10000)
+              })
               
               const { data: profile } = await Promise.race([profilePromise, profileTimeoutPromise])
               userData.role = (profile?.role ? String(profile.role).toLowerCase() : 'user')
@@ -123,7 +132,7 @@ export const AuthProvider = ({ children }) => {
           setLoading(false)
           setAuthError(null)
           setIsStable(true) // Mark as stable after successful initialization
-          clearTimeout(fallbackTimeout)
+          if (fallbackTimeoutRef.current) clearTimeout(fallbackTimeoutRef.current)
         } else {
           console.log('❌ No session found')
           // Check if we have stored admin data as fallback
@@ -137,7 +146,7 @@ export const AuthProvider = ({ children }) => {
           }
           setLoading(false)
           setAuthError(null)
-          clearTimeout(fallbackTimeout)
+          if (fallbackTimeoutRef.current) clearTimeout(fallbackTimeoutRef.current)
         }
       } catch (error) {
         console.error('❌ AuthContext: Critical error in getInitialSession:', error)
@@ -147,7 +156,7 @@ export const AuthProvider = ({ children }) => {
           setUser(null)
           setLoading(false)
           setAuthError(error.message === 'Auth timeout' ? 'انتهت مهلة الاتصال' : 'حدث خطأ في تحميل المصادقة')
-          clearTimeout(fallbackTimeout)
+          if (fallbackTimeoutRef.current) clearTimeout(fallbackTimeoutRef.current)
         }
       }
     }
@@ -160,7 +169,9 @@ export const AuthProvider = ({ children }) => {
         console.log('🔄 AuthContext: Auth state changed:', event)
         
         // Add small delay to prevent rapid state changes
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => {
+          authChangeTimeoutRef.current = setTimeout(resolve, 500)
+        })
         
         if (mounted) {
           try {
@@ -175,9 +186,9 @@ export const AuthProvider = ({ children }) => {
                   .eq('id', userData.id)
                   .single()
                 
-                const profileTimeoutPromise = new Promise((_, reject) => 
-                  setTimeout(() => reject(new Error('Profile timeout')), 5000)
-                )
+                const profileTimeoutPromise = new Promise((_, reject) => {
+                  profileTimeoutRef.current = setTimeout(() => reject(new Error('Profile timeout')), 5000)
+                })
                 
                 const { data: profile } = await Promise.race([profilePromise, profileTimeoutPromise])
                 userData.role = (profile?.role ? String(profile.role).toLowerCase() : 'user')
@@ -211,7 +222,13 @@ export const AuthProvider = ({ children }) => {
     return () => {
       console.log('🧹 AuthContext: Cleaning up auth effect')
       mounted = false
-      clearTimeout(fallbackTimeout)
+      // Clear all timeout references
+      if (fallbackTimeoutRef.current) clearTimeout(fallbackTimeoutRef.current)
+      if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current)
+      if (authChangeTimeoutRef.current) clearTimeout(authChangeTimeoutRef.current)
+      if (signUpTimeoutRef.current) clearTimeout(signUpTimeoutRef.current)
+      if (signInTimeoutRef.current) clearTimeout(signInTimeoutRef.current)
+      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current)
       subscription?.unsubscribe()
     }
   }, [user])
@@ -223,9 +240,9 @@ export const AuthProvider = ({ children }) => {
       console.log('⏳ AuthContext: Setting loading to true for signUp')
       
       // إضافة timeout للطلب لتجنب التعليق
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
-      )
+      const timeoutPromise = new Promise((_, reject) => {
+        signUpTimeoutRef.current = setTimeout(() => reject(new Error('Request timeout')), 10000)
+      })
       
       console.log('🔄 AuthContext: Making signUp request to Supabase...')
       const authPromise = supabase.auth.signUp({
@@ -243,7 +260,9 @@ export const AuthProvider = ({ children }) => {
         // إذا كان خطأ شبكة وهذه ليست المحاولة الثالثة، جرب مرة أخرى
         if (retryCount < 2 && (error.message?.includes('network') || error.message?.includes('fetch'))) {
           console.log('🔄 AuthContext: Retrying signUp due to network error')
-          await new Promise(resolve => setTimeout(resolve, 1000)) // انتظار ثانية واحدة
+          await new Promise(resolve => {
+            retryTimeoutRef.current = setTimeout(resolve, 1000)
+          })
           return signUp(email, password, userData, retryCount + 1)
         }
         throw error
@@ -258,7 +277,9 @@ export const AuthProvider = ({ children }) => {
         // إذا كان timeout وهذه ليست المحاولة الثالثة، جرب مرة أخرى
         if (retryCount < 2) {
           console.log('🔄 AuthContext: Retrying signUp due to timeout')
-          await new Promise(resolve => setTimeout(resolve, 1000))
+          await new Promise(resolve => {
+            retryTimeoutRef.current = setTimeout(resolve, 1000)
+          })
           return signUp(email, password, userData, retryCount + 1)
         }
         console.log('⏰ AuthContext: SignUp timeout occurred after retries')
@@ -279,9 +300,9 @@ export const AuthProvider = ({ children }) => {
       console.log('⏳ AuthContext: Setting loading to true for signIn')
       
       // إضافة timeout للطلب لتجنب التعليق
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
-      )
+      const timeoutPromise = new Promise((_, reject) => {
+        signInTimeoutRef.current = setTimeout(() => reject(new Error('Request timeout')), 10000)
+      })
       
       console.log('🔄 AuthContext: Making signIn request to Supabase...')
       const authPromise = supabase.auth.signInWithPassword({
@@ -296,7 +317,9 @@ export const AuthProvider = ({ children }) => {
         // إذا كان خطأ شبكة وهذه ليست المحاولة الثالثة، جرب مرة أخرى
         if (retryCount < 2 && (error.message?.includes('network') || error.message?.includes('fetch'))) {
           console.log('🔄 AuthContext: Retrying signIn due to network error')
-          await new Promise(resolve => setTimeout(resolve, 1000)) // انتظار ثانية واحدة
+          await new Promise(resolve => {
+            retryTimeoutRef.current = setTimeout(resolve, 1000)
+          })
           return signIn(email, password, retryCount + 1)
         }
         throw error
@@ -311,7 +334,9 @@ export const AuthProvider = ({ children }) => {
         // إذا كان timeout وهذه ليست المحاولة الثالثة، جرب مرة أخرى
         if (retryCount < 2) {
           console.log('🔄 AuthContext: Retrying signIn due to timeout')
-          await new Promise(resolve => setTimeout(resolve, 1000))
+          await new Promise(resolve => {
+            retryTimeoutRef.current = setTimeout(resolve, 1000)
+          })
           return signIn(email, password, retryCount + 1)
         }
         console.log('⏰ AuthContext: SignIn timeout occurred after retries')
