@@ -20,7 +20,7 @@ export const useComments = () => {
 export const CommentsProvider = ({ children }) => {
   const [comments, setComments] = useState([])
   const [loading, setLoading] = useState(false)
-  const { user } = useAuth()
+  const { user, isAdmin } = useAuth()
   const { showToast } = useToast()
 
   // تحميل التعليقات من localStorage
@@ -105,7 +105,7 @@ export const CommentsProvider = ({ children }) => {
 
   // حذف تعليق (للمشرفين فقط)
   const deleteComment = (commentId) => {
-    if (!user || !isAdmin(user)) {
+    if (!user || !isAdmin()) {
       showToast('ليس لديك صلاحية لحذف التعليقات', 'error')
       return false
     }
@@ -126,7 +126,7 @@ export const CommentsProvider = ({ children }) => {
 
   // إخفاء/إظهار تعليق (للمشرفين فقط)
   const toggleCommentVisibility = (commentId) => {
-    if (!user || !isAdmin(user)) {
+    if (!user || !isAdmin()) {
       showToast('ليس لديك صلاحية لإدارة التعليقات', 'error')
       return false
     }
@@ -220,16 +220,13 @@ export const CommentsProvider = ({ children }) => {
 
   // الحصول على جميع التعليقات (للمشرفين)
   const getAllComments = () => {
-    if (!user || !isAdmin(user)) {
+    if (!user || !isAdmin()) {
       return []
     }
     return comments
   }
 
-  // التحقق من صلاحيات المشرف
-  const isAdmin = (user) => {
-    return user && (user.email === 'admin@example.com' || user.user_metadata?.role === 'admin')
-  }
+
 
   // إحصائيات التعليقات
   const getCommentsStats = () => {
@@ -257,7 +254,7 @@ export const CommentsProvider = ({ children }) => {
     getArticleComments,
     getAllComments,
     getCommentsStats,
-    isAdmin: isAdmin(user)
+    isAdmin
   }
 
   return (
