@@ -35,16 +35,34 @@ const nextConfig = {
   
   // Build optimizations - completely disabled to prevent function reference issues
   swcMinify: false,
+  // Disable all production optimizations
+  productionBrowserSourceMaps: false,
+  optimizeFonts: false,
   
-  // Bundle optimization - minimal changes to prevent function reference issues
+  // Bundle optimization - completely disabled to prevent function reference issues
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     
-    // Only disable minification to prevent function name mangling
+    // Completely disable all minification and optimization
     config.optimization = {
       ...config.optimization,
       minimize: false,
-      minimizer: []
+      minimizer: [],
+      // Disable all code transformations
+      mangleExports: false,
+      concatenateModules: false,
+      sideEffects: false,
+      usedExports: false,
+      innerGraph: false
     };
+    
+    
+    
+    // Disable all Terser and minification plugins
+    config.plugins = config.plugins.filter(plugin => {
+      return !plugin.constructor.name.includes('TerserPlugin') &&
+             !plugin.constructor.name.includes('OptimizeCssAssetsWebpackPlugin') &&
+             !plugin.constructor.name.includes('MinifyPlugin');
+    });
     
     // Bundle analyzer
     if (process.env.ANALYZE) {
