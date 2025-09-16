@@ -24,17 +24,17 @@ const nextConfig = {
     scrollRestoration: true,
   },
   
-  // Compression
-  compress: true,
+  // Compression - disabled to prevent bundling issues
+  compress: false,
   
-  // تحسين الأداء العام
-  generateEtags: false,
+  // Performance optimizations - simplified
+  generateEtags: true,
   
   // PWA and mobile optimizations
   poweredByHeader: false,
   
-  // Build optimizations
-  swcMinify: true,
+  // Build optimizations - disabled to prevent function reference issues
+  swcMinify: false,
   
   // Bundle optimization - simplified to avoid function reference issues
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
