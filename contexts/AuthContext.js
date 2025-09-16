@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useRef } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext({})
@@ -12,240 +12,177 @@ export const useAuth = () => {
 }
 
 export const AuthProvider = ({ children }) => {
-  console.log('🔧 AuthProvider: Component initializing...')
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [authError, setAuthError] = useState(null)
-  const [isStable, setIsStable] = useState(false) // Track auth stability
-  
-  // Timeout references for cleanup
-  const fallbackTimeoutRef = useRef(null)
-  const profileTimeoutRef = useRef(null)
-  const authChangeTimeoutRef = useRef(null)
-  const signUpTimeoutRef = useRef(null)
-  const signInTimeoutRef = useRef(null)
-  const retryTimeoutRef = useRef(null)
 
-  // Helper function to save user data to localStorage
-  const saveUserToStorage = (userData) => {
+  // Helper functions for localStorage
+  const saveUserToStorage = useCallback((userData) => {
     if (typeof window !== 'undefined' && userData) {
-      localStorage.setItem('admin_user_data', JSON.stringify(userData))
+      try {
+        localStorage.setItem('zomiga_user', JSON.stringify({
+          id: userData.id,
+          email: userData.email,
+          role: userData.role,
+          timestamp: Date.now()
+        }))
+      } catch (error) {
+        console.warn('Failed to save user to storage:', error)
+      }
     }
-  }
+  }, [])
 
-  // Helper function to load user data from localStorage
-  const loadUserFromStorage = () => {
+  const loadUserFromStorage = useCallback(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('admin_user_data')
-      return stored ? JSON.parse(stored) : null
+      try {
+        const stored = localStorage.getItem('zomiga_user')
+        if (stored) {
+          const userData = JSON.parse(stored)
+          // Check if data is not older than 24 hours
+          if (Date.now() - userData.timestamp < 24 * 60 * 60 * 1000) {
+            return userData
+          }
+          localStorage.removeItem('zomiga_user')
+        }
+      } catch (error) {
+        console.warn('Failed to load user from storage:', error)
+        localStorage.removeItem('zomiga_user')
+      }
     }
     return null
-  }
+  }, [])
 
-  // Helper function to clear user data from localStorage
-  const clearUserFromStorage = () => {
+  const clearUserFromStorage = useCallback(() => {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('admin_user_data')
+      localStorage.removeItem('zomiga_user')
     }
-  }
-  console.log('🔧 AuthProvider: Initial state set - loading: true')
+  }, [])
 
+  // Optimized profile fetching with caching
+  const fetchUserProfile = useCallback(async (userId) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single()
+      
+      if (error) throw error
+      return profile?.role || 'user'
+    } catch (error) {
+      console.warn('Profile fetch failed, using default role:', error)
+      return 'user'
+    }
+  }, [])
+
+  // Initialize auth state
   useEffect(() => {
     let mounted = true
-    console.log('🔄 AuthContext: Starting initialization...')
-    
-    // Try to load user from localStorage first for faster loading
-    const storedUser = loadUserFromStorage()
-    if (storedUser && storedUser.role === 'admin') {
-      console.log('📦 Loading user from storage:', storedUser.email)
-      setUser(storedUser)
-    }
-    
-    // Fallback timeout to prevent infinite loading - increased timeout and better handling
-    fallbackTimeoutRef.current = setTimeout(() => {
-      if (mounted && loading) {
-        console.warn('⏰ Auth initialization timeout - keeping current state')
-        // Don't reset user to null if we already have a session or stored data
-        if (!user && !storedUser) {
-          setUser(null)
-          setAuthError('انتهت مهلة تحميل المصادقة')
-        }
-        setLoading(false)
-      }
-    }, 30000) // 30 seconds timeout instead of 10
-    
-    // Get initial session with enhanced error handling
-    const getInitialSession = async () => {
+    let timeoutId
+
+    const initializeAuth = async () => {
       try {
-        console.log('🔍 AuthContext: Getting initial session...')
-        // Add timeout to the auth request with retry mechanism
-        const authPromise = supabase.auth.getSession()
-        const timeoutPromise = new Promise((_, reject) => {
-          const timeoutId = setTimeout(() => reject(new Error('Auth timeout')), 8000)
-          return timeoutId
-        })
-        
-        const { data: { session }, error } = await Promise.race([authPromise, timeoutPromise])
-        console.log('📋 AuthContext: Session result:', { session: !!session, error: !!error })
+        // Load from storage first for instant UI
+        const storedUser = loadUserFromStorage()
+        if (storedUser) {
+          setUser(storedUser)
+        }
+
+        // Set timeout for auth initialization
+        timeoutId = setTimeout(() => {
+          if (mounted && loading) {
+            console.warn('Auth initialization timeout')
+            setLoading(false)
+            if (!storedUser) {
+              setAuthError('فشل في تحميل بيانات المصادقة')
+            }
+          }
+        }, 10000)
+
+        // Get current session
+        const { data: { session }, error } = await supabase.auth.getSession()
         
         if (error) {
-          console.error('❌ AuthContext: Error getting session:', error)
+          console.error('Session error:', error)
           if (mounted) {
-            setUser(null)
+            setAuthError('خطأ في جلسة المصادقة')
             setLoading(false)
-            setAuthError(error.message)
           }
           return
         }
 
         if (mounted) {
-          const userData = session?.user ?? null
-          console.log('👤 AuthContext: Processing user data:', { hasUser: !!userData })
-          if (userData) {
-            try {
-              console.log('🔍 AuthContext: Fetching user profile...')
-              // Get user profile to check role with timeout and fallback
-              const profilePromise = supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', userData.id)
-                .single()
-              
-              const profileTimeoutPromise = new Promise((_, reject) => {
-                profileTimeoutRef.current = setTimeout(() => reject(new Error('Profile timeout')), 10000)
-              })
-              
-              const { data: profile } = await Promise.race([profilePromise, profileTimeoutPromise])
-              userData.role = (profile?.role ? String(profile.role).toLowerCase() : 'user')
-              console.log('✅ AuthContext: Profile loaded, role:', userData.role)
-            } catch (profileError) {
-              console.warn('⚠️ AuthContext: Error getting user profile, using default role:', profileError)
-              userData.role = 'user'
+          if (session?.user) {
+            const role = await fetchUserProfile(session.user.id)
+            const userData = {
+              id: session.user.id,
+              email: session.user.email,
+              role: role
             }
-          }
-          console.log('✅ AuthContext: Setting user and completing initialization')
-          setUser(userData)
-          // Save admin user data to localStorage for persistence
-          if (userData && userData.role === 'admin') {
+            setUser(userData)
             saveUserToStorage(userData)
-          }
-          setLoading(false)
-          setAuthError(null)
-          setIsStable(true) // Mark as stable after successful initialization
-          if (fallbackTimeoutRef.current) clearTimeout(fallbackTimeoutRef.current)
-        } else {
-          console.log('❌ No session found')
-          // Check if we have stored admin data as fallback
-          const storedUser = loadUserFromStorage()
-          if (storedUser && storedUser.role === 'admin') {
-            console.log('📦 Using stored admin data as fallback')
-            setUser(storedUser)
           } else {
             setUser(null)
             clearUserFromStorage()
           }
+          
           setLoading(false)
           setAuthError(null)
-          if (fallbackTimeoutRef.current) clearTimeout(fallbackTimeoutRef.current)
+          clearTimeout(timeoutId)
         }
       } catch (error) {
-        console.error('❌ AuthContext: Critical error in getInitialSession:', error)
-        console.error('❌ AuthContext: Error details:', { message: error.message, stack: error.stack })
+        console.error('Auth initialization error:', error)
         if (mounted) {
-          console.log('⚠️ AuthContext: Setting error state due to exception')
-          setUser(null)
+          setAuthError('خطأ في تهيئة المصادقة')
           setLoading(false)
-          setAuthError(error.message === 'Auth timeout' ? 'انتهت مهلة الاتصال' : 'حدث خطأ في تحميل المصادقة')
-          if (fallbackTimeoutRef.current) clearTimeout(fallbackTimeoutRef.current)
         }
       }
     }
 
-    getInitialSession()
+    initializeAuth()
 
-    // Listen for auth changes with enhanced error handling
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔄 AuthContext: Auth state changed:', event)
-        
-        // Add small delay to prevent rapid state changes
-        await new Promise(resolve => {
-          authChangeTimeoutRef.current = setTimeout(resolve, 500)
-        })
-        
-        if (mounted) {
-          try {
-            const userData = session?.user ?? null
-            if (userData) {
-              try {
-                console.log('🔍 AuthContext: Fetching profile in auth change...')
-                // Get user profile to check role with timeout and fallback
-                const profilePromise = supabase
-                  .from('profiles')
-                  .select('role')
-                  .eq('id', userData.id)
-                  .single()
-                
-                const profileTimeoutPromise = new Promise((_, reject) => {
-                  profileTimeoutRef.current = setTimeout(() => reject(new Error('Profile timeout')), 5000)
-                })
-                
-                const { data: profile } = await Promise.race([profilePromise, profileTimeoutPromise])
-                userData.role = (profile?.role ? String(profile.role).toLowerCase() : 'user')
-                console.log('✅ AuthContext: Profile loaded in auth change, role:', userData.role)
-              } catch (profileError) {
-                console.warn('⚠️ AuthContext: Error getting user profile in auth change, using default role:', profileError)
-                userData.role = 'user'
-              }
+        if (!mounted) return
+
+        try {
+          if (session?.user) {
+            const role = await fetchUserProfile(session.user.id)
+            const userData = {
+              id: session.user.id,
+              email: session.user.email,
+              role: role
             }
-            console.log('✅ AuthContext: Updating user state from auth change')
             setUser(userData)
-            // Save admin user data to localStorage for persistence
-            if (userData && userData.role === 'admin') {
-              saveUserToStorage(userData)
-            } else if (!userData) {
-              clearUserFromStorage()
-            }
-            setLoading(false)
-            setAuthError(null)
-          } catch (stateChangeError) {
-            console.error('❌ AuthContext: Error in auth state change handler:', stateChangeError)
-            // Don't set error state here to avoid disrupting auth flow
+            saveUserToStorage(userData)
+          } else {
+            setUser(null)
+            clearUserFromStorage()
           }
+          setAuthError(null)
+        } catch (error) {
+          console.error('Auth state change error:', error)
         }
+        
+        setLoading(false)
       }
     )
 
-    // Remove periodic session validation to prevent login/logout loops
-    // Session validation will be handled by onAuthStateChange listener only
-
     return () => {
-      console.log('🧹 AuthContext: Cleaning up auth effect')
       mounted = false
-      // Clear all timeout references
-      if (fallbackTimeoutRef.current) clearTimeout(fallbackTimeoutRef.current)
-      if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current)
-      if (authChangeTimeoutRef.current) clearTimeout(authChangeTimeoutRef.current)
-      if (signUpTimeoutRef.current) clearTimeout(signUpTimeoutRef.current)
-      if (signInTimeoutRef.current) clearTimeout(signInTimeoutRef.current)
-      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current)
+      if (timeoutId) clearTimeout(timeoutId)
       subscription?.unsubscribe()
     }
-  }, [user])
+  }, [])
 
-  const signUp = async (email, password, userData = {}, retryCount = 0) => {
-    console.log('📝 AuthContext: Starting signUp process...', { email, userData, attempt: retryCount + 1 })
+  // Optimized sign up function
+  const signUp = useCallback(async (email, password, userData = {}) => {
     try {
       setLoading(true)
-      console.log('⏳ AuthContext: Setting loading to true for signUp')
+      setAuthError(null)
       
-      // إضافة timeout للطلب لتجنب التعليق
-      const timeoutPromise = new Promise((_, reject) => {
-        signUpTimeoutRef.current = setTimeout(() => reject(new Error('Request timeout')), 10000)
-      })
-      
-      console.log('🔄 AuthContext: Making signUp request to Supabase...')
-      const authPromise = supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -253,175 +190,92 @@ export const AuthProvider = ({ children }) => {
         }
       })
       
-      const { data, error } = await Promise.race([authPromise, timeoutPromise])
-      console.log('📋 AuthContext: SignUp response received:', { hasData: !!data, hasError: !!error, errorMessage: error?.message })
+      if (error) throw error
       
-      if (error) {
-        // إذا كان خطأ شبكة وهذه ليست المحاولة الثالثة، جرب مرة أخرى
-        if (retryCount < 2 && (error.message?.includes('network') || error.message?.includes('fetch'))) {
-          console.log('🔄 AuthContext: Retrying signUp due to network error')
-          await new Promise(resolve => {
-            retryTimeoutRef.current = setTimeout(resolve, 1000)
-          })
-          return signUp(email, password, userData, retryCount + 1)
-        }
-        throw error
-      }
-      console.log('✅ AuthContext: SignUp successful')
-      return { data, error: null }
+      return { success: true, data }
     } catch (error) {
-      console.error('❌ AuthContext: SignUp error:', error)
-      
-      // معالجة أفضل للأخطاء
-      if (error.message === 'Request timeout') {
-        // إذا كان timeout وهذه ليست المحاولة الثالثة، جرب مرة أخرى
-        if (retryCount < 2) {
-          console.log('🔄 AuthContext: Retrying signUp due to timeout')
-          await new Promise(resolve => {
-            retryTimeoutRef.current = setTimeout(resolve, 1000)
-          })
-          return signUp(email, password, userData, retryCount + 1)
-        }
-        console.log('⏰ AuthContext: SignUp timeout occurred after retries')
-        return { data: null, error: { message: 'انتهت مهلة الاتصال بعد عدة محاولات. يرجى المحاولة مرة أخرى.' } }
-      }
-      
-      return { data: null, error }
+      console.error('Sign up error:', error)
+      setAuthError(error.message || 'فشل في إنشاء الحساب')
+      return { success: false, error: error.message }
     } finally {
-      console.log('🔄 AuthContext: Setting loading to false for signUp')
       setLoading(false)
     }
-  }
+  }, [])
 
-  const signIn = async (email, password, retryCount = 0) => {
-    console.log('🔑 AuthContext: Starting signIn process...', { email, attempt: retryCount + 1 })
+  // Optimized sign in function
+  const signIn = useCallback(async (email, password) => {
     try {
       setLoading(true)
-      console.log('⏳ AuthContext: Setting loading to true for signIn')
+      setAuthError(null)
       
-      // إضافة timeout للطلب لتجنب التعليق
-      const timeoutPromise = new Promise((_, reject) => {
-        signInTimeoutRef.current = setTimeout(() => reject(new Error('Request timeout')), 10000)
-      })
-      
-      console.log('🔄 AuthContext: Making signIn request to Supabase...')
-      const authPromise = supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       })
       
-      const { data, error } = await Promise.race([authPromise, timeoutPromise])
-      console.log('📋 AuthContext: SignIn response received:', { hasData: !!data, hasError: !!error, errorMessage: error?.message })
+      if (error) throw error
       
-      if (error) {
-        // إذا كان خطأ شبكة وهذه ليست المحاولة الثالثة، جرب مرة أخرى
-        if (retryCount < 2 && (error.message?.includes('network') || error.message?.includes('fetch'))) {
-          console.log('🔄 AuthContext: Retrying signIn due to network error')
-          await new Promise(resolve => {
-            retryTimeoutRef.current = setTimeout(resolve, 1000)
-          })
-          return signIn(email, password, retryCount + 1)
-        }
-        throw error
-      }
-      console.log('✅ AuthContext: SignIn successful')
-      return { data, error: null }
+      return { success: true, data }
     } catch (error) {
-      console.error('❌ AuthContext: SignIn error:', error)
-      
-      // معالجة أفضل للأخطاء
-      if (error.message === 'Request timeout') {
-        // إذا كان timeout وهذه ليست المحاولة الثالثة، جرب مرة أخرى
-        if (retryCount < 2) {
-          console.log('🔄 AuthContext: Retrying signIn due to timeout')
-          await new Promise(resolve => {
-            retryTimeoutRef.current = setTimeout(resolve, 1000)
-          })
-          return signIn(email, password, retryCount + 1)
-        }
-        console.log('⏰ AuthContext: SignIn timeout occurred after retries')
-        return { data: null, error: { message: 'انتهت مهلة الاتصال بعد عدة محاولات. يرجى المحاولة مرة أخرى.' } }
-      }
-      
-      return { data: null, error }
+      console.error('Sign in error:', error)
+      setAuthError(error.message || 'فشل في تسجيل الدخول')
+      return { success: false, error: error.message }
     } finally {
-      console.log('🔄 AuthContext: Setting loading to false for signIn')
       setLoading(false)
     }
-  }
+  }, [])
 
-  const signOut = async () => {
+  // Optimized sign out function
+  const signOut = useCallback(async () => {
     try {
       setLoading(true)
       const { error } = await supabase.auth.signOut()
+      
       if (error) throw error
       
       setUser(null)
-      setAuthError(null)
-      // Clear stored user data
       clearUserFromStorage()
-      console.log('✅ User signed out successfully')
-      return { error: null }
+      return { success: true }
     } catch (error) {
-      console.error('❌ Error signing out:', error)
-      setAuthError(error.message)
-      return { error }
+      console.error('Sign out error:', error)
+      setAuthError(error.message || 'فشل في تسجيل الخروج')
+      return { success: false, error: error.message }
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const resetPassword = async (email) => {
+  // Reset password function
+  const resetPassword = useCallback(async (email) => {
     try {
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
+      setLoading(true)
+      setAuthError(null)
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`
       })
       
       if (error) throw error
-      return { data, error: null }
-    } catch (error) {
-      return { data: null, error }
-    }
-  }
-
-  const updatePassword = async (newPassword) => {
-    try {
-      const { data, error } = await supabase.auth.updateUser({
-        password: newPassword
-      })
       
-      if (error) throw error
-      return { data, error: null }
+      return { success: true }
     } catch (error) {
-      return { data: null, error }
+      console.error('Reset password error:', error)
+      setAuthError(error.message || 'فشل في إرسال رابط إعادة تعيين كلمة المرور')
+      return { success: false, error: error.message }
+    } finally {
+      setLoading(false)
     }
-  }
-
-  // Helper function to check if user is admin
-  const isAdmin = (userData = user) => {
-    if (!userData) return false
-    return String(userData.role || '').toLowerCase() === 'admin'
-  }
-
-  // Helper function to check if user is moderator or admin
-  const isModerator = (userData = user) => {
-    if (!userData) return false
-    const role = String(userData.role || '').toLowerCase()
-    return role === 'admin' || role === 'moderator'
-  }
+  }, [])
 
   const value = {
     user,
     loading,
     authError,
-    isStable,
     signUp,
     signIn,
     signOut,
     resetPassword,
-    updatePassword,
-    isAdmin,
-    isModerator
+    clearError: () => setAuthError(null)
   }
 
   return (

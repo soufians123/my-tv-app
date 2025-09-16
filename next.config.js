@@ -22,10 +22,15 @@ const nextConfig = {
     // optimizeCss requires the 'critters' package; disable during dev to avoid MODULE_NOT_FOUND
     optimizeCss: false,
     scrollRestoration: true,
+    esmExternals: true, // تحسين ES modules
+    serverComponentsExternalPackages: ['sharp'], // تحسين معالجة الصور
   },
   
   // Compression
   compress: true,
+  
+  // تحسين الأداء العام
+  generateEtags: false,
   
   // PWA and mobile optimizations
   poweredByHeader: false,
@@ -39,6 +44,7 @@ const nextConfig = {
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
+        minSize: 20000,
         maxSize: 244000,
         cacheGroups: {
           vendor: {

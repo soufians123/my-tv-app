@@ -7,7 +7,9 @@ import FavoritesProvider from '../components/FavoritesSystem'
 import { CommentsProvider } from '../components/CommentsSystem'
 import { AdvertisementProvider } from '../components/AdvertisementSystem'
 import { LoadingFallback } from '../components/LoadingComponents'
+import LoadingSpinner from '../components/LoadingSpinner'
 import Head from 'next/head'
+import { Suspense, lazy } from 'react'
 
 export default function App({ Component, pageProps }) {
   console.log('🚀 App: Component starting to render:', Component.name || 'Unknown')
@@ -32,6 +34,12 @@ export default function App({ Component, pageProps }) {
         <meta name="referrer" content="no-referrer" />
         <meta httpEquiv="Cross-Origin-Embedder-Policy" content="unsafe-none" />
         <meta httpEquiv="Cross-Origin-Resource-Policy" content="cross-origin" />
+        
+        {/* Performance Optimization */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
+        <meta name="robots" content="index, follow" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
       </Head>
       
       <ThemeProvider>
@@ -43,7 +51,9 @@ export default function App({ Component, pageProps }) {
                   <AdvertisementProvider>
                     {/* اجعل الخلفية تستجيب للوضع الداكن */}
                     <div className="bg-gray-50 dark:bg-gray-900" dir="rtl" lang="ar">
-                      <Component {...pageProps} />
+                      <Suspense fallback={<LoadingFallback />}>
+                        <Component {...pageProps} />
+                      </Suspense>
                     </div>
                   </AdvertisementProvider>
                 </CommentsProvider>
