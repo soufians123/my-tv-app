@@ -267,6 +267,12 @@ export const AuthProvider = ({ children }) => {
     }
   }, [])
 
+  // Admin check function
+  const isAdmin = useCallback((userData = user) => {
+    if (!userData) return false
+    return userData.role === 'admin' || userData.role === 'super_admin'
+  }, [user])
+
   const value = {
     user,
     loading,
@@ -275,6 +281,7 @@ export const AuthProvider = ({ children }) => {
     signIn,
     signOut,
     resetPassword,
+    isAdmin,
     clearError: () => setAuthError(null)
   }
 
