@@ -7,7 +7,6 @@ import FavoritesProvider from '../components/FavoritesSystem'
 import { CommentsProvider } from '../components/CommentsSystem'
 import { AdvertisementProvider } from '../components/AdvertisementSystem'
 import { LoadingFallback } from '../components/LoadingComponents'
-import LoadingSpinner from '../components/LoadingSpinner'
 import Head from 'next/head'
 import { Suspense, lazy } from 'react'
 

@@ -313,7 +313,7 @@ const HomePage = () => {
           </div>
         </div>
       </Layout>
-    )
+    );
   }
 
   // Show authenticated user homepage
@@ -462,14 +462,15 @@ const HomePage = () => {
                 <div className="mt-4 text-xs text-gray-500 dark:text-gray-400 group-hover:text-pink-500 transition-colors">+30% هذا الشهر</div>
               </div>
             </div>
-          )
-
-          {/* Inline Ad between Stats and Quick Actions */}
-          <div className="mt-8 mb-8">
-            <InlineAd position="content" size="medium" />
           </div>
+        )}
+        
+        {/* Inline Ad between Stats and Quick Actions */}
+        <div className="mt-8 mb-8">
+          <InlineAd position="content" size="medium" />
+        </div>
 
-          {/* Enhanced Quick Actions */}
+        {/* Enhanced Quick Actions */}
           <div className="mb-16">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -550,11 +551,11 @@ const HomePage = () => {
               </div>
             </div>
           </div>
-        )}
 
           {/* Premium Contact Us Section */}
           <div className="mt-16">
             <div className="relative overflow-hidden rounded-3xl">
+              <div>
               {/* Premium Gradient Background */}
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900"></div>
               
