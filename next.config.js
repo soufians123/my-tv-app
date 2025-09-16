@@ -33,11 +33,18 @@ const nextConfig = {
   // PWA and mobile optimizations
   poweredByHeader: false,
   
-  // Build optimizations - disabled to prevent function reference issues
+  // Build optimizations - completely disabled to prevent function reference issues
   swcMinify: false,
   
-  // Bundle optimization - simplified to avoid function reference issues
+  // Bundle optimization - minimal changes to prevent function reference issues
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    
+    // Only disable minification to prevent function name mangling
+    config.optimization = {
+      ...config.optimization,
+      minimize: false,
+      minimizer: []
+    };
     
     // Bundle analyzer
     if (process.env.ANALYZE) {
